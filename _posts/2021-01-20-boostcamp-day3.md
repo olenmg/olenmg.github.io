@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Day3. 자료구조와 파이써닉"
+title: "Day3. 자료구조와 Pythonic code"
 subtitle: "파이썬에서의 자료구조와 파이썬다운 코드"
-date: 2021-01-20 18:27:13+0900
+date: 2021-01-20 19:27:13+0900
 background: '/img/posts/bg-posts.png'
 ---
 
@@ -16,7 +16,7 @@ background: '/img/posts/bg-posts.png'
   
 오늘은 아래 2가지 주제를 다루었는데, 각자에서 배운 내용이 상당히 많았다.
 + [파이썬 자료구조](#파이썬-자료구조)
-+ [Pythonic code](#Pythonic-code)
++ [Pythonic code](#pythonic-code)
 
 
 <br/>
@@ -33,7 +33,7 @@ background: '/img/posts/bg-posts.png'
 
 - Queue(큐)  
     + Queue는 FIFO(First In First Out)로 작동한다.  
-    + 나머지는 Stack과 동일한데, <code>pop()</code>의 경우 맨 처음 들어온 인자를 제거해야하므로 <code>pop(0)</code>과 같이 <code>pop</code>함수의 파라미터를 0으로 줘야한다.
+    + 나머지는 Stack과 동일한데, <code>pop()</code>의 경우 맨 처음 들어온 인자를 제거해야하므로 <code>pop(0)</code>과 같이 <strong><code>pop</code>함수의 파라미터를 0으로</strong> 줘야한다.
   
    
   
@@ -58,8 +58,8 @@ background: '/img/posts/bg-posts.png'
         > <code>intersection</code>, <code>union</code>, <code>difference</code> 함수 대신 <code>&</code>, <code>|</code>, <code>-</code> 연산자를 사용해도 된다. i.e. <code>s1 & s2</code>
 
     + set에는 <code>remove</code>, <code>update</code>, <code>discard</code>, <code>clear</code> 등의 메소드가 존재한다. 
-    + <code>remove</code>는 존재하지 않는 원소를 지우려하면 에러가 발생하지만 <code>discard</code>는 같은 상황에서 에러가 발생하지 않는다는 차이가 있다. 
-    + set을 활용하면 아래와 같이 list의 중복 원소를 제거하는 것도 가능하다.
+    + <strong><code>remove</code>는 존재하지 않는 원소를 지우려하면 에러가 발생하지만 <code>discard</code>는 같은 상황에서 에러가 발생하지 않는다는 차이가 있다.</strong> 
+    + <strong>set을 활용하면 아래와 같이 list의 중복 원소를 제거하는 것도 가능하다.</strong>
         ```python
         #remove_duplicated.py
         mylist = [1, 1, 3, 4, 5, 5]
@@ -70,11 +70,9 @@ background: '/img/posts/bg-posts.png'
 
 
 #### 딕셔너리(Dictionary)
-- 해시테이블과 유사한 역할을 한다. 모든 원소가 key와 value로 이루어져있다.
+- 해시 테이블과 유사한 역할을 한다. 모든 원소가 key와 value로 이루어져있다.
 - dictionary에서 <code>for</code>문을 돌리면 tuple 형태로 key-value 쌍이 나오게 된다.
-- 주로 <code>for</code>문에서 key, value를 뽑아낼 때 value, key 순서로 뽑아내는 것 같다. (파이썬의 관습인듯 ..? :sweat:)
 - 아래와 같이 언팩킹도 할 수 있으며, key값을 index로 하여 value 수정도 된다.
-
     ```python
     #dictionary_example.py
     dic = {1: "car", 2: "train", 3: "bus", 4: "airplane"}
@@ -108,7 +106,7 @@ collections에는 많은 클래스가 있는데, 일단은 deque, defaultdict, c
     + <code>rotate</code>의 경우 iterate 연산시의 시작 원소의 위치를 바꾸게 된다. 양의 방향이 오른쪽 방향이다.
 
 - defaultdict
-    + 딕셔너리와 같은데, 딕셔너리에 없는 키값에 접근해도 에러가 발생하지 않는다. 지정하지 않은 키에 접근하려하면 그 값이 default value로 지정된다.
+    + 딕셔너리와 같은데, <strong>딕셔너리에 없는 키값에 접근해도 에러가 발생하지 않는다.</strong> 지정하지 않은 키에 접근하려하면 그 값이 default value로 지정된다.
     + 다만 defaultdict는 선언시 초기값 지정이 필요하다. 자료형을 인자로 넣으면 해당 자료형의 default value가 들어가며, 그 외 직접 지정하고싶으면 <code>lambda</code>를 이용하면 된다.
 
         ```python
@@ -123,7 +121,6 @@ collections에는 많은 클래스가 있는데, 일단은 deque, defaultdict, c
 
 - Counter
     + 이름 그대로 각 value가 list에 총 몇 개인지 카운팅할 수 있는 클래스이다. 별도의 반복문 없이 바로 각 단어의 반복횟수를 구할 수 있다.
-    
         ```python
         #counter.py
         from collections import Counter
@@ -140,7 +137,6 @@ collections에는 많은 클래스가 있는데, 일단은 deque, defaultdict, c
 - namedtuple
     + C/C++에서의 구조체와 비슷하다.
     + 다만 어차피 주로 클래스를 사용할 것이기 때문에 namedtuple의 형태가 필요한 경우 클래스를 사용하면 되고, 존재만 알고 있으면 된다고 한다.
-
         ```python
         #namedtuple.py
         from collections import namedtuple
@@ -158,7 +154,7 @@ collections에는 많은 클래스가 있는데, 일단은 deque, defaultdict, c
 
 
 ## Pythonic code
-말그대로 파이썬다운 코드를 말한다. Pythonic한 코드를 짤수록 대체로 속도가 빠르다. 또한 코드 자체가 간결하여 가독성도 좋아진다. 파이썬에 익숙하지 않기 때문에 앞으로 특히 Pythonic한 코드를 짜기 위해 신경써야 할 것 같다.
+파이썬다운 코드를 말한다. Pythonic한 코드를 짤수록 대체로 속도가 빠르다. 또한 코드 자체가 간결하여 가독성도 좋아진다. 파이썬에 익숙하지 않기 때문에 앞으로 특히 Pythonic한 코드를 짜기 위해 신경써야 할 것 같다.
 
 #### split & join
 어제 과제를 진행하면서 <code>split</code>, <code>join</code> 함수를 적극적으로 사용해야겠다고 생각했는데 역시 이 파트에서도 언급되었다.  
@@ -174,7 +170,7 @@ c = ' '.join(b)
 print(c) #I am groot
 ```
 
-피어세션때 알게된건데, split에 인자를 안주어 공백으로 자르게되면 연속되는 공백은 모두 무시하게 된다. 그런데 parameter로 특정 문자를 주게 되면 그 특정 문자가 연속할 때 모두 공백으로 처리되어 리스트에 들어가게 된다.
+피어세션때 알게된건데, split에 인자를 주지 않은 상태, 즉 <strong>공백으로 자르게되면 연속되는 공백은 모두 무시하게 된다. 그런데 parameter로 특정 문자를 주게 되면 그 특정 문자가 연속할 때 모두 공백으로 처리되어 리스트에 들어가게 된다.</strong>
 
 ```python
 #split_more.py
@@ -190,9 +186,8 @@ print(b.split())
 #### List comprehension
 list comprehension은 딱히 번역이 없어 영어로 많이 쓴다고 한다.  
 리스트를 즉각적으로 생성해야 할 때 사용되며 속도도 더 빠르다고.  
-이 부분은 백번 말로하는 것보다 코드로 볼 때 이해가 훨씬 쉬웠다.  
 
-List comprehension 시 중첩 <code>for</code>문도 사용할 수 있으며 <code>if</code>문을 통해 filtering도 즉각적으로 가능하므로 아주 강력한 도구인 것 같다.  
+List comprehension시 중첩 <code>for</code>문도 사용할 수 있으며 <code>if</code>문을 통해 filtering도 즉각적으로 가능하므로 아주 강력한 도구인 것 같다.  
 안쪽 <code>for</code>문을 괄호로 감싸줌으로써 2차원 리스트도 만들 수 있다.
 
 ```python
@@ -223,7 +218,7 @@ print(result)
 
 
 #### Enumerate
-python에서는 대부분의 <code>for</code>문에 index 값을 사용하지 않기 때문에 index를 다루면서 무언가를 하기가 쉽지 않았다. Enumerate를 사용하면 index 값을 지정할 수 있다.
+python에서는 대부분의 <code>for</code>문에 index 값을 사용하지 않기 때문에 index를 다루면서 무언가를 하기가 쉽지 않았다. <strong>Enumerate를 사용하면 index 값을 지정할 수 있다.</strong>
 
 ```python
 #enumerate.py
@@ -262,7 +257,7 @@ list(enumerate(zip(alist, blist))) #enumerate와 함께 활용
 - lambda
     + lambda는 이름 없는 익명함수를 선언하여 사용하고 싶을 때 쓴다.
     + 사용법은 아래 코드와 같이 매우 간단하다. 그래서 많이 되는 것 같다. 
-    + 현재 버전의 파이썬에서는 lambda 사용을 권장하지 않는다고 한다. 다만 편하기 때문에 아직 많이 사용한다고 한다. :fearful:
+    + 현재 버전의 파이썬에서는 lambda 사용을 <strong>권장하지 않는다고</strong> 한다. 다만 편하기 때문에 아직 많이 사용한다고 한다. :fearful:
         ```python
         #lambda.py
         f = (lambda x, y : x + y)
@@ -292,20 +287,20 @@ list(enumerate(zip(alist, blist))) #enumerate와 함께 활용
     + map 역시도 사용이 권장되지는 않으나 아직 쓰는 사람이 많으므로 알고 있어야 한다. 그런데 map 보면 알겠지만 사실 list comprehension으로도 모두 처리할 수 있는 내용이다. :anguished:
 
 - reduce
-    + 그러고보니 map/reduce는 hadoop 공부할때도 본 것 같다. 아무튼 원리는 똑같다.
-    + reduce는 인자로 들어온 함수를 이용하여 리스트의 원소들을 이용하여 통합한다. (즉, 더 작은 단위로 줄인(reduce)다.)
+    + 그러고보니 map/reduce는 hadoop 공부할때도 본 것 같다. 원리는 똑같다.
+    + reduce는 인자로 들어온 함수를 이용하여 리스트의 원소들을 통합한다. (즉, 더 작은 단위로 줄인(reduce)다.)
         ```python
         #reduce.py
         from functools import reduce
         print(reduce(lambda x, y: x + y, [1,2,3,4,5]))
         ```
 
-    + reduce는 잘 안쓰지만 대용량 처리에 유용하니 map/reduce 개념을 알고 있어야 한다.
+    + reduce는 잘 안쓰지만 <strong>대용량 데이터 처리에 유용하니</strong> map/reduce 개념을 알고 있어야 한다.
     
 
 #### iterable object
-sequence 자료형에서 데이터를 차례대로 가리킬 수 있는 객체이다.(반복 가능한 객체)  
-loop이 돌 때마다 매번 iterator은 다음 원소를 가리킨다.
+sequence 자료형에서 데이터를 차례대로 가리킬 수 있는 객체이다. (반복 가능한 객체)  
+loop이 돌 때마다 매번 iterator는 다음 원소를 가리킨다.
 
 ```python
 #iterator.py
@@ -382,13 +377,12 @@ next(memory_address_cities) #ERROR!
     ...
     ```
 
-- generator는 대용량 데이터에서 실사용되는 메모리를 크게 줄일 수 있으므로 적극적으로 사용하는 것이 좋으며, 잘 이해하고 있어야 한다.
+- :exclamation: generator는 <strong>대용량 데이터에서 실사용되는 메모리를 크게 줄일 수 있으므로</strong> 적극적으로 사용하는 것이 좋으며, 잘 이해하고 있어야 한다.
 
 
 #### function passing argument
 - keyword argument
-    + 아래와 같이 함수를 호출할 수 있다.
-
+    + 아래와 같이 함수를 호출할 때 파라미터에 변수명을 써줄 수 있다. 따라서 명시만 해준다면, 들어오는 순서가 바뀌어도 관계가 없다.
         ```python
         #keyword_argument.py
         def get_rectangle_area(width, height):
@@ -400,8 +394,7 @@ next(memory_address_cities) #ERROR!
         ```
 
 - default argument
-    + 미리 변수의 기본값을 지정할 수 있다.
-        
+    + 미리 변수의 기본값을 지정할 수 있다. 만약 파라미터가 들어오지 않을 경우 기본 값을 사용한다.   
         ```python
         #default_argument.py
         def get_rectangle_area(width, height=5):
@@ -414,8 +407,8 @@ next(memory_address_cities) #ERROR!
     + 단, <code>def ..(width=5, height)</code>와 같이 default argument가 non-default argument보다 우선되어서는 안된다. 반드시 default argument는 맨 마지막에 나와야한다.
 
 - variable-length argument
-    + parameter의 갯수가 안정해져있을 때 사용한다.
-    + 가변인자는 asterisk(<code>*</code>)를 사용하여 나타낸다.
+    + 들어오는 parameter의 갯수가 정해져있지 않을 때(즉, 가변인자일 때) 사용한다.
+    + <strong>가변인자는 asterisk(<code>*</code>)를 사용하여 나타낸다.</strong>
     + 가변인자로 들어오는 값들은 tuple형태로 사용 가능하다.
         ```python
         #variable_length_argument.py
@@ -426,7 +419,6 @@ next(memory_address_cities) #ERROR!
         ```
     
     + parameter 이름도 아래와 같이 지정할 수 있으며, 이 경우 dict type으로 사용된다.
-
         ```python
         #kwargs.py
         def kwargs_test_1(**kwargs):
@@ -448,7 +440,7 @@ next(memory_address_cities) #ERROR!
 
 - asterisk(<code>*</code>)
     + 지금까지 본 바와 같이 asterisk는 다양한 용도로 사용된다. 곱 연산자, 제곱 연산자, 가변인자 등.. 
-    + 마지막으로 unpacking container로도 사용된다.
+    + 마지막으로 asterisk는 unpacking container로도 사용된다.
     + 아래와 같이 tuple, dict 등에 있는 값을 풀어서 인자로 넣어줄 수 있다.
 
     ```python
