@@ -7,6 +7,10 @@
     {% if page.title %}{{ page.title | escape }} - {{ site.title | escape }}
     {% else %}{{ site.title | escape }}{% endif %}
   </title>
+  
+  {% if page.use_math %}
+  {% include mathjax_support.html %}
+  {% endif %}
 
   <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
 
