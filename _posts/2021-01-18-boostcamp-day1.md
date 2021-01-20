@@ -3,7 +3,7 @@ layout: post
 title: "Day1. 개발환경 준비"
 subtitle: "개발 세팅 및 CS 기본 지식"
 date: 2021-01-18 20:58:13+0900
-background: '/img/posts/bg-post.jpg'
+background: '/img/posts/bg-posts.png'
 ---
 
 ## 개요

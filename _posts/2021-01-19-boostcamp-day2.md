@@ -3,7 +3,7 @@ layout: post
 title: "Day2. 파이썬 기초 문법"
 subtitle: "변수, 함수, I/O, 조건문, 문자열 처리"
 date: 2021-01-19 21:18:13+0900
-background: '/img/posts/bg-post.jpg'
+background: '/img/posts/bg-posts.png'
 ---
 
 ## 개요
