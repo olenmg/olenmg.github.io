@@ -32,6 +32,7 @@ background: '/img/posts/bg-posts.png'
 원래 파이썬이라는 언어에 대해 관심이 별로 없었어서 이제 관심을 붙여야하는데 이런 역사를 알고나니 좀 더 흥미가 간다. :flushed:  
 
 ![python](/img/posts/01.png){: .center} 
+> <center> 지금보니 이것도 뱀이었다. :smirk: </center>
 
 파이썬이 플랫폼(OS)에 독립적인 인터프리터 언어라는 점은 잘 알려진 사실이다. 따라서 실행속도가 컴파일러에 의해 컴파일 이후 동작하는 C, JAVA 등의 언어보다는 느리다.  
 
