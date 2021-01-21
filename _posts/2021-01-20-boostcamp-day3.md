@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Day3. 자료구조와 Pythonic code"
+title: "Day3. 자료구조와 Pythonic"
 subtitle: "파이썬에서의 자료구조와 파이썬다운 코드"
 date: 2021-01-20 19:27:13+0900
 background: '/img/posts/bg-posts.png'
@@ -292,7 +292,7 @@ list(enumerate(zip(alist, blist))) #enumerate와 함께 활용
         ```python
         #reduce.py
         from functools import reduce
-        print(reduce(lambda x, y: x + y, [1,2,3,4,5]))
+        print(reduce(lambda x, y: x + y, [1,2,3,4,5])) # 15
         ```
 
     + reduce는 잘 안쓰지만 <strong>대용량 데이터 처리에 유용하니</strong> map/reduce 개념을 알고 있어야 한다.
