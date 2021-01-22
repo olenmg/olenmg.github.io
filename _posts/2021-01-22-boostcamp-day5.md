@@ -158,7 +158,7 @@ background: '/img/posts/bg-posts.png'
         f.close()
         multiply_pickle.multiply(5)
         ```
-> 'dump'는 CS분야에서 메모리의 내용을 출력한다는 뜻도 가진다. 
+> 'dump'는 CS분야에서 메모리의 내용을 출력하라는 뜻도 가진다. 
 
 #### 로그 핸들링
 - 일반적으로 <strong>실행시점과 개발시점 모두에서 로그를 사용</strong>한다. (개발의 편의성/정확성 향상을 위한 로그가 필요)
