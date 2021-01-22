@@ -6,7 +6,7 @@ date: 2021-01-20 19:27:13+0900
 background: '/img/posts/bg-posts.png'
 ---
 
-## 개요
+## 개요 <!-- omit in toc -->
 > 오늘 배운 내용도 마찬가지로 concept은 모두 아는 내용이었다. 하지만 역시 여러모로 미세하게 다른 부분들이 많았다.
 파이썬에만 존재하는 함수들이 여럿 있었으며 이런 함수들은 다소 생소했다.
 자료구조의 경우 같은 컨셉 구현을 위해 여러 다른 자료구조를 사용할 수도 있었고 다소 생소한 자료구조도 한 두개 있었던 것 같다. 
@@ -15,8 +15,20 @@ background: '/img/posts/bg-posts.png'
   
   
 오늘은 아래 2가지 주제를 다루었는데, 각자에서 배운 내용이 상당히 많았다.
-+ [파이썬 자료구조](#파이썬-자료구조)
-+ [Pythonic code](#pythonic-code)
+- [파이썬 자료구조](#파이썬-자료구조)
+    - [스택/큐(Stack/Queue)](#스택큐stackqueue)
+    - [튜플/셋(Tuple/Set)](#튜플셋tupleset)
+    - [딕셔너리(Dictionary)](#딕셔너리dictionary)
+    - [컬렉션(Collections)](#컬렉션collections)
+- [Pythonic code](#pythonic-code)
+    - [split & join](#split--join)
+    - [list comprehension](#list-comprehension)
+    - [enumerate](#enumerate)
+    - [zip](#zip)
+    - [lambda/map/reduce](#lambdamapreduce)
+    - [iterable object](#iterable-object)
+    - [generator](#generator)
+    - [function passing argument](#function-passing-argument)
 
 
 <br/>
@@ -183,7 +195,7 @@ print(b.split())
 #['EXTRA', 'SPACE']
 ```
 
-#### List comprehension
+#### list comprehension
 list comprehension은 딱히 번역이 없어 영어로 많이 쓴다고 한다.  
 리스트를 즉각적으로 생성해야 할 때 사용되며 속도도 더 빠르다고.  
 
@@ -217,8 +229,8 @@ print(result)
 ```  
 
 
-#### Enumerate
-python에서는 대부분의 <code>for</code>문에 index 값을 사용하지 않기 때문에 index를 다루면서 무언가를 하기가 쉽지 않았다. <strong>Enumerate를 사용하면 index 값을 지정할 수 있다.</strong>
+#### enumerate
+python에서는 대부분의 <code>for</code>문에 index 값을 사용하지 않기 때문에 index를 다루면서 무언가를 하기가 쉽지 않았다. <strong>enumerate를 사용하면 index 값을 지정할 수 있다.</strong>
 
 ```python
 #enumerate.py
@@ -236,7 +248,7 @@ dic = {v : i for i, v in enumerate(a)} #v, i의 순서를 바꿀 수도 있다.
 print(dic) #{'a': 0, 'b': 1, 'c': 2, 'd': 3}
 ```
 
-#### Zip
+#### zip
 zip은 두 list를 병렬적으로 추출하는 데에 활용된다. 이것도 아래 코드를 보면 바로 이해가 된다. 
 
 ```python
