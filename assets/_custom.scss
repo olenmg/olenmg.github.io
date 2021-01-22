@@ -47,3 +47,44 @@ div{
     display: block;
     margin: auto;
 }
+
+/* for table */
+table {
+    margin: auto;
+    border-collapse: collapse;
+    text-align: left;
+    line-height: 1.5;
+    thead {
+        th {
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            vertical-align: top;
+            color: #1b3453;
+            border-top: 2px solid #1b3453;
+            border-bottom: 2px solid #1b3453;
+        }
+    }
+    tbody {
+        th {
+            padding: 10px 15px;
+            font-weight: bold;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+            background: #f3f6f7;
+        }
+    }
+    td {
+        padding: 10px 15px;
+        vertical-align: top;
+        border-bottom: 1px solid #ccc;
+    }
+}
+
+/* link */
+
+.link_button a {
+    &:link { color: white; background-color: #03a87c; text-decoration: none; text-shadow: 0 0 24px; }
+    &:visited { color: white; }
+    &:hover { color: white; background-color: #038f6a; text-decoration: none;}
+}

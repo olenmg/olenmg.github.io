@@ -22,7 +22,7 @@ background: '/img/posts/bg-posts.png'
 이 강의에서는 OS, File system, Terminal 등에 대하여 다루었다.
 모두 이미 알고있던 내용들이 많았기 때문에 별다른 요약은 하지 않으려고 한다 :sweat_smile:
   
-다만 기존에 Linux환경과 같은 명령어 사용을 위해 git bash셸을 썼었는데, 이번 강의를 통해 [cmder](https://cmder.net/)라는 새로운 터미널 도구를 알게 되었다.  
+다만 기존에 Linux환경과 같은 명령어 사용을 위해 git bash셸을 썼었는데, 이번 강의를 통해 <span class="link_button">[cmder](https://cmder.net/)</span>라는 새로운 터미널 도구를 알게 되었다.  
 기존에 git bash에 불만을 가지고 있었던 점이 꽤 많았어서 cmder를 바로 설치해서 사용해보았는데 나쁘지 않은 것 같다. 다만 속도는 살짝 느린 것 같기도 하다(...)
 
 <br/>
@@ -45,7 +45,7 @@ background: '/img/posts/bg-posts.png'
 <br/>
 
 ## 파이썬 개발 환경 세팅
-[miniconda](https://docs.conda.io/en/latest/miniconda.html)를 설치하고 가상환경에서 jupyter notebook을 설치하는 과정까지 완료하였다.  
+<span class="link_button">[miniconda](https://docs.conda.io/en/latest/miniconda.html)</span>를 설치하고 가상환경에서 jupyter notebook을 설치하는 과정까지 완료하였다.  
 
 이미 알고있던 anaconda 대신 miniconda라는 것을 설치하였는데, 아무래도 anaconda가 용량도 무겁고 기본적으로 패키지가 너무 많이 설치되어있어 설치 속도 및 크기를 라이트하게 줄이기 위해 miniconda가 고안된 것 같다. 실제로 miniconda 사용을 위해 기존에 있던 anaconda를 삭제하고 miniconda를 새로 설치하였는데 설치속도가 anaconda에 비해 매우 빨랐다.  
 
