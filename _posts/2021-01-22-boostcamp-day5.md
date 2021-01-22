@@ -107,7 +107,7 @@ background: '/img/posts/bg-posts.png'
             print(type(content_list)) # list
             print(content_list[0]) # ...\n 
         ```
-   - 아래와 같이 <code>readline</code>을 통해 실행시마다 한 줄씩 읽어올 수 있다. 이렇게 하면 큰 데이터를 다룰 때 <code>readline</code> 함수를 사용할 때보다 메모리를 효율적으로 관리할 수 있을 것이다. :simple_smile:
+   - 아래와 같이 <code>readline</code>을 통해 실행시마다 한 줄씩 읽어올 수 있다. 이렇게 하면 큰 데이터를 다룰 때 <code>readline</code> 함수를 사용할 때보다 메모리를 효율적으로 관리할 수 있을 것이다.
         ```python
         #readline.py
         with open("file.txt", "r") as my_file:
