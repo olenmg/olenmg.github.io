@@ -2,7 +2,7 @@
 layout: post
 title: "Day8. pandas와 신경망"
 subtitle: "pandas(Part 1), 신경망과 역전파"
-date: 2021-01-27 10:45:12+0900
+date: 2021-01-27 23:58:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
