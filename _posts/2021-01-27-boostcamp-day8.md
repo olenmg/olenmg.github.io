@@ -327,7 +327,7 @@ $p_{i}=\frac{\text{exp}(o_{i})}{\sum_{k=1}^{p} \text{exp}(o_{k})} \   \text{for}
 
 <br/>
 
-$\text{softmax}(\text{o})=\left(\frac{\text{exp}(o_{1})}{\sum_{k=1}^{p} \text{exp}(o_{k})}, \cdots ,\frac{\text{exp}(o_{p})}{\sum_{k=1}^{p} \text{exp}(o_{k})}\right) = \left(p_{1}, p_{2}, p_{3}\right) = \hat{y}$
+$\text{softmax}(\text{o})=\left(\frac{\text{exp}(o_{1})}{\sum_{k=1}^{p} \text{exp}(o_{k})}, \cdots ,\frac{\text{exp}(o_{p})}{\sum_{k=1}^{p} \text{exp}(o_{k})}\right) = \left(p_{1}, \cdots, p_{k}\right) = \hat{y}$
 
 </center>
 
