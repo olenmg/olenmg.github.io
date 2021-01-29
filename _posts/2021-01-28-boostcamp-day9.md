@@ -426,7 +426,6 @@ $\int ^{1} _{-1} e^{-x^{2}} dx \approx 1.49364$로 구한 값이 오차범위 �
 
   
 확률론에 대한 이야기를 할 때 아래 글들을 참고하였다.  
-<span class="link_button">
 [확률밀도함수의 유도](https://bit.ly/3pqF5a1)  
 [결합확률분포](https://destrudo.tistory.com/13)  
 [주변확률분포](https://blog.naver.com/mykepzzang/220837645914)  
@@ -434,4 +433,3 @@ $\int ^{1} _{-1} e^{-x^{2}} dx \approx 1.49364$로 구한 값이 오차범위 �
 [조건부기댓값](https://analysisbugs.tistory.com/8)  
 [조건부기댓값(PDF)](https://imai.fas.harvard.edu/teaching/files/Expectation.pdf)  
 [몬테카를로 법칙](http://www.gisdeveloper.co.kr/?p=9039)  
-</span>
