@@ -97,7 +97,7 @@ use_math: true
 - 기본적인 선그래프는 <code>lineplot()</code> 함수로 그릴 수 있다. 가지고있는 데이터에서 $x$와 $y$ 값을 무엇으로할지 직관적으로 지정할 수 있다는 장점이 있다.
 - mathplotlib.pyplot의 <code>plot()</code>과 달리 argument가 복잡하지 않으므로 docstring을 보고 쉽게 파악할 수 있다.
 - <code>lineplot()</code> 함수에서 <code>hue</code> 옵션을 주면, 지정한 column의 각 값들로 카테고리화된 그래프를 얻을 수 있다.
-- 만약<code>lineplot(x="A", y="B", hue="C", data=fmri)</code>라고 하면 <code>fmri["A"].unique()</code> 안에 있는 값들 각각에 대한 그래프를 그릴 수 있다는 것이다.
+- 만약 <code>lineplot(x="A", y="B", hue="C", data=fmri)</code>라고 하면 <code>fmri["C"].unique()</code> 안에 있는 값들을 범례로 하는 x축 A, y축 B에 대한 그래프를 그릴 수 있다는 것이다.
 - seaborn도 <code>scatterplot()</code>, <code>countplot()</code>, <code>barplot()</code>, <code>distplot()</code> 등으로 다양한 형태의 그래프를 그릴 수 있다.
 - <code>violinplot()</code>은 boxplot과 distribution을 함께 표현하는 그래프이다.
 - <code>FacetGrid()</code>로 특정 조건에 따른 다양한 plot을 grid 형태로 표현할 수 있다.
