@@ -2,7 +2,7 @@
 layout: post
 title: "Day11. 베이즈 정리, PyTorch, 머신러닝의 역사"
 subtitle: "베이즈 통계학과 딥러닝의 역사적 흐름, PyTorch, MLP"
-date: 2021-02-01 20:32:12+0900
+date: 2021-02-01 23:56:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
