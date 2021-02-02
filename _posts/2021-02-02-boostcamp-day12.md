@@ -180,14 +180,14 @@ use_math: true
         - 사실 window size가 조금만 커져도 그만큼의 벡터를 다 메모리에 저장하고 있는 것은 불가능하다.
         - 그래서 $G_{t}$를 $t$ 번째 gradient까지의 제곱의 평균($=E[g^2]_t$)이라고 하고, 이에 근사할 수 있는 값을 대신 찾는다.
         - 앞서 RMSprop에서 적용했던 지수 평균을 여기서도 사용한다.
-    + 추가적으로, learning rate($\eta$) 대신 $H$로 이루어진 식이 분자에 들어가는데, <strong>이 알고리즘은 learning rate</strong>가 없다.
+    + 추가적으로, learning rate($\eta$) 대신 $H$로 이루어진 식이 분자에 들어가는데, <strong>이 알고리즘은 learning rate가 없다.</strong>
     + 대신 parameter의 변화값(미분)의 제곱에 대한 지수 평균을 구해서 사용하는데 유닛(?)이 일치하지 않아 그렇다고 한다.
     > The authors note that the units in this update (as well as in SGD, Momentum, or Adagrad) do not match, i.e. the update should have the same hypothetical units as the parameter. To realize this, they first define another exponentially decaying average.
     + ... 여기서 말하는 'unit'이 뭔진 잘 모르겠는데 :anguished: 그냥 gradient가 아닌 parameter 변화량의 제곱을 이용한다는 점을 기억하자.
     + 보다시피 learning rate를 직접 설정할 수 없어 모델 설계시 직접 바꿀 수 있는 요소가 거의 없기 때문에 잘 안쓴다고 한다.
 
 - Adam(Adaptive Moment Estimation)
-    + Adam은 현재 가장 널리 사용하는 옵티마이저로, RMSProp과 Momentum 방식을 합친 형태의 알고리즘이다.
+    + Adam은 <strong>현재 가장 널리 사용하는 옵티마이저로</strong>, RMSProp과 Momentum 방식을 합친 형태의 알고리즘이다.
     + momentum과 gradient 변화량 제곱에 대한 지수 평균을 모두 이용한다.
     + 그래서 이전처럼 momentum은 분자에 들어가고, gradient제곱 변화량은 분모에 square되어 들어간다.
     <center>
