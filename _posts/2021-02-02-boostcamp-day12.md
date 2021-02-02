@@ -129,8 +129,8 @@ use_math: true
 - Adagrad
     + 자주 업데이트 되는 parameter은 적게 변화시키고, 적게 업데이트 된 parameter은 많이 변화시키는 알고리즘이다.
     + 자주 업데이트된 변수는 optimum에 가까이 있을 것이라는 추정에 근거한다. (실제로 이게 엄밀하게 증명이 되었는지는 모르겠다)
-    + 따라서 각 parameter마다 step size를 다르게 적용시켜준다.
-    + 따라서 지금까지 gradient가 얼마나 변했는지 square(제곱)하여 저장하는 $G_t$라는 변수를 새로 도입한다.
+    + 따라서 각 parameter마다 step size를 다르게 적용시켜줄 수 있다.
+    + 그리고 이를 위해 지금까지 gradient가 얼마나 변했는지 square(제곱)하여 저장하는 $G_t$라는 변수를 새로 도입한다.
     <center>
     $$
     G_{t} = G_{t-1} + (\nabla_{\theta}J(\theta_t))^2
