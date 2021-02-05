@@ -207,7 +207,4 @@ AR model에는 아래와 같은 모델이 존재한다.
 <br />
 
 ## Reference  
-[Long Short Term Memory(LSTM)](https://dgkim5360.tistory.com/entry/understanding-long-short-term-memory-lstm-kr)   
-[Gated Recurrent Unit(GRU)](https://yjjo.tistory.com/18)    
-[Transformer(원문)](http://jalammar.github.io/illustrated-transformer/)  
-[Transformer(번역)](https://nlpinkorean.github.io/illustrated-transformer/)  
+[Pixel RNN](http://ai-hub.kr/post/98/)  
