@@ -233,7 +233,7 @@ $$
 <strong>그리고 이후 LSTM, GRU 등의 advanced RNN을 도입하여 이 문제를 해결하기도 하였다. </strong> 
 
 ![RNN_vanishing_exploding](/img/posts/14-2.png){: width="90%" height="90%"}{: .center}  
-> 위와 같이 activation function 때문에 h_t 자체에서도 exploding/vanishing이 나타나기도 한다.  
+> 위와 같이 activation function 때문에 $h_t$ 자체에서도 exploding/vanishing이 나타나기도 한다.  
    
 <br />
 
