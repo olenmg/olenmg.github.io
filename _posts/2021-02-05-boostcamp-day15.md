@@ -17,7 +17,10 @@ use_math: true
     - [필요한 parameter의 수](#필요한-parameter의-수)
     - [Conditonal Independence](#conditonal-independence)
     - [Auto regressive Model (AR model)](#auto-regressive-model-ar-model)
-- [작성중 쿠쿠쿠](#작성중-쿠쿠쿠)
+- [Variational Auto-Encoder, VAE](#variational-auto-encoder-vae)
+    - [Autoencoder](#autoencoder)
+    - [Variational Auto-encoder](#variational-auto-encoder)
+- [Generative Adversarial Network, GAN](#generative-adversarial-network-gan)
 - [Reference](#reference)
 
 <br/>
@@ -202,9 +205,180 @@ AR model에는 아래와 같은 모델이 존재한다.
 
 <br/>
 
-## 작성중 쿠쿠쿠
+## Variational Auto-Encoder, VAE
+VAE/GAN 부분은.. 너무 어렵다 :cry: :cry: 
+그리고 이 내용들을 직접 정리하는 것은 내용도 너무 방대하다 :cry: 
+Reference로 달아둔 영상들을 참조하도록 하고, 여기 내용들은 전체적인 흐름만 다루도록 하려고 한다. 
+추후 여기에 익숙해진 후 다시 이 포스트의 내용을 채워넣도록 하자.
+
+<br/>
+
+#### Autoencoder
+Autoencoder를 알기 위해서는 먼저 manifold에 대해 알아야 한다. 
+manifold란 고차원 데이터를 데이터 공간에 뿌렸을 때 그 데이터 전체를 잘 아우르는 subspace를 뜻한다. 
+즉 데이터 전체의 분포를 나타내는 하나의 벡터공간이라고 보면 될 것 같다.  
+  
+Autoencoder는 결론부터 말하면 데이터 압축과 데이터의 중요한 feature들을 찾아내는데에 큰 역할을 한다.  
+![autoencoder](/img/posts/15-3.jpg){: width="60%" height="60%"}{: .center}  
+> Reference의 이활석님 오토인코더 강의中
+
+여기서는 $x$라는 데이터를 입력으로 넣으면 $x$라는 데이터가 출력으로 그대로 나오기를 기대한다. 
+여기서 가운데에 $\mathrm{z}$라는 latent vector가 우리가 추출하고자하는 <strong>축소된 데이터</strong>이다. 
+우리는 손실함수 $L(x, y)$를 최소화함으로써 쉽게 학습할 수 있다. 여기서 $x$는 입력값, $y$는 출력값인데 
+결국 입력과 출력이 같기를 원하고 있으므로 손실함수를 이렇게 설정할 수 있다.
+  
+
+그냥 직관적으로 보면, $x$가 Encoder를 거쳐 $\mathrm{z}$ 벡터가 되었고 Decoder를 통해 그 벡터가 원상복구되었다. 
+그렇다면 $\mathrm{z}$가 $x$를 축소한 것이라고 이해할 수 있다. 
+이를 통해 우리는 autoencoder가 결국은 training data의 manifold를 학습한다고 이해할 수 있다. 
+  
+
+manifold를 구하는 방법에는 사실 여러가지가 있지만, 대부분 K-최근접 이웃 기법을 사용하기 때문에 고차원 벡터를 축소시킬 때 
+자연스럽게 유클리드 거리를 사용하게 된다.   
+
+   
+하지만 2차원, 3차원에서 더 나아가 매우 고차원이 되면 단순히 유클리드 거리만으로 manifold를 찾는건 오류가 생길 가능성이 크다.  
+예를 들어, 실제 manifold가 빙글빙글 꼬여있는 상태라고 생각해보면 유클리드 거리로 이웃을 찾았을 때 그 이웃은 실제 manifold 위에 없을 가능성이 크다.  
+
+  
+그래서 고차원 데이터일수록 autoencoder를 사용하는 것이 manifold를 찾는 데에 더 유리하며, 특히 autoencoder는 신경망 구조를 채택하기 때문에 데이터의 양이 많을수록 더 성능이 좋다는 장점도 있다.  
+
+<br/>
+  
+#### Variational Auto-encoder
+근데 사실 위에서 설명한 <strong>general autoencoder는 generative model</strong>은 아니다.
+어디까지나 차원축소를 하고 그 축소된 벡터들의 manifold를 구하는 데에는 도움이 될 수 있겠지만, 무언가 새로운 것을 생성하는 것은 아니다. 
+(latent vector $\mathrm{z}$는 생성된거라기보다는, 그냥 $x$가 축소된 것이다)  
+  
+그래서 VAE라는 컨셉이 등장하게된다. 이것은 generative model로 입력 $x$와 비슷한 무언가를 생성해내는것이 목적이다. 
+
+![vae](/img/posts/15-4.png){: width="100%" height="100%"}{: .center}  
+그런데 일단 무언가 생성을 하려면 $x$를 만들 수 있는 latent vector $\mathrm{z}$의 분포를 알아야한다.  
+만약 latent vector의 분포를 알게되면 그 분포에서 무언가 하나를 샘플링해서 모델에 넣으면 $x$와 같지는 않지만 비슷한 출력이 나오게 될 것이다.  
+
+문제는 그 샘플링 함수를 우리는 모른다. 그래서 이를 추정하기 위해 <strong>Variance Inference(VI) 방법을 사용한다.</strong>   
+먼저 우리가 구하고자하는 것은 posterior distribution으로 $p \_{\theta} (\mathrm{z} \vert x)$로 표기한다.   
+그리고 이에 근사하는 variational distribution $q \_{\theta} (\mathrm{z} \vert x)$를 찾는 것이 우리의 목표이다.  
+여기서 기호의 의미를 잠깐만 해석하자면, $\mathrm{z} \vert x$라는 형태는 모두 $x$라는 데이터가 주어졌을 때 $\mathrm{z}$의 분포($p$, $q$)를 뜻한다.
+
+<center>
+
+$$
+p _{\theta} (\mathrm{z} \vert x) \approx q _{\theta} (\mathrm{z} \vert x) \sim \mathrm{z}
+$$
+
+</center>
+
+그러면 이제 posterior distribution $p \_{\theta} (\mathrm{z} \vert x)$과 variational distribution $q \_{\theta} (\mathrm{z} \vert x)$ 간의 관계식을 찾아야한다. 
+이 관계식으로부터 무언가 할 수 있는게 있다면 목표하는 확률분포를 찾을 수 있을 것이다. 
+그렇게 나타나게 된 식이 아래와 같다.  
+
+<center>
+
+$$
+\begin{aligned}
+\ln p_{\theta}(D) 
+&=\int log(p(x)) q_\phi (\mathrm{z} \vert x) d \mathrm{z} \;\;\;\;\;\; \leftarrow \int q_\phi (\mathrm{z} \vert x) d \mathrm{z} = 1 \\ 
+&=\int \log{\left( \dfrac{p(x, \mathrm{z})}{p(\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} 
+\;\;\;\;\;\; \leftarrow p(x) = \dfrac{p(x, \mathrm{z})}{p(\mathrm{z} \vert x)}\\
+&=\int \log{\left( \dfrac{p(x, \mathrm{z})}{q _\phi (\mathrm{z} \vert x)} \cdot \dfrac{q _\phi (\mathrm{z} \vert x)}{p(\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} \\
+&=\underbrace{\int \log{\left( \dfrac{p(x, \mathrm{z})}{q _\phi (\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z}}_{\text {ELBO}(\phi) }+\underbrace{\int \log{\left( \dfrac{q _\phi (\mathrm{z} \vert x)}{p(\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z}}_{ KL\left( q _{\phi} (\mathrm{z} \vert x \Vert p( \mathrm{z} \vert x) ) \right) }
+\end{aligned}
+$$
+
+</center>
+
+강의에서는 위 식을 아래와 같이 표현하였는데, 결국 continuous distribution에서 기댓값은 곧 적분값이기 때문에 사실 같은 표현이라고 보면 된다. 
+다만 개인적으로는 위 식이 더 이해하기 편해서 식을 위와 같이 썼다.
+
+<center>
+
+$$
+\begin{aligned}
+\ln p_{\theta}(D) &=\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln p_{\theta}(x)\right] \\
+&=\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln \frac{p_{\theta}(x, \mathrm{z})}{p_{\theta}(\mathrm{z} \vert x)}\right] \\
+&=\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln \frac{p_{\theta}(x, \mathrm{z}) q_{\phi}(\mathrm{z} \vert x)}{q_{\phi}(\mathrm{z} \vert x) p_{\theta}(\mathrm{z} \vert x)}\right] \\
+&=\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln \frac{p_{\theta}(x, \mathrm{z})}{q_{\phi}(\mathrm{z} \vert x)}\right]+\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln \frac{q_{\phi}(\mathrm{z} \vert x)}{p_{\theta}(\mathrm{z} \vert x)}\right] \\
+&=\underbrace{\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)}\left[\ln \frac{p_{\theta}(x, \mathrm{z})}{q_{\phi}(\mathrm{z} \vert x)}\right]}_{\text {ELBO } \uparrow}+\underbrace{D_{K L}\left(q_{\phi}(\mathrm{z} \vert x) \| p_{\theta}(\mathrm{z} \vert x)\right)}_{\text {Objective } \downarrow}
+\end{aligned}
+$$
+
+</center>
+
+$p \_{\theta} (\mathrm{z} \vert x)$과 $q \_{\theta} (\mathrm{z} \vert x)$ 간의 거리(KL-Divergence)는 두번째 항이다. 
+우리는 그 항을 최소화해야하는데, 거듭 말하지만 posterior distribution은 불명이다. 따라서 두번째 항을 최소화하기 위해 <strong>첫번째 항을 최대화하는 방법을 취한다.</strong>  
+  
+첫번째 항은 ELBO(Evidence Lower Bound)를 뜻하는데, 이를 maximization하는 $\underset{\phi}{\mathrm{argmax}} \; ELBO (\phi)$를 찾아야한다. 
+다시 ELBO term을 풀어서 전개해보면
+
+<center>
+
+$$
+\begin{aligned}
+ELBO(\phi)
+&=\int \log{\left( \dfrac{p(x, \mathrm{z})}{q _\phi (\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} \\ 
+&=\int \log{\left( \dfrac{p(x \vert \mathrm{z}) p(z)}{q _\phi (\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} \\
+&=\int \log{(p(x \vert \mathrm{z}))} q _\phi (\mathrm{z} \vert x)d \mathrm{z} - \log{\left( \dfrac{q _\phi (\mathrm{z} \vert x)}{p(\mathrm{z}} \right) q _\phi (\mathrm{z} \vert x)d \mathrm{z}} \\
+&=\underbrace{\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)} \left[\log{(p(x \vert \mathrm{z}))}\right]}_{\text{Reconstruction Term}} - \underbrace{KL(q _\phi (\mathrm{z} \vert x) \Vert p(\mathrm{z}))}_{\text{Prior Fitting Term}}
+\end{aligned}
+$$
+
+</center>
+
+참고로, <strong>두번째 항의 앞의 KL과 인자가 다른 점에 유의해야한다. </strong>
+그런데 첫번째 항을 보면 결국 이게 Decoder가 $\mathrm{z}$를 $x$로 만들 때의 확률 $g \_\theta (x \vert \mathrm{z})$과 같고, 
+이것 역시 maximize해야하므로 ELBO term을 maximize하는 것은 결국 Decoder의 $g \_\theta (x \vert \mathrm{z})$을 maximize하는 것과 같다. 
+그리고 이것이 결국 Maximum Likelihood Estimation(MLE)하는 작업이다. 
+한편 두번째 항의 경우, 같은 Restruction Error을 가진 $q \_\phi$가 여러개 있다면 기왕이면 Prior와 같은 모양이 되었으면 좋겠다라는 점을 반영한 항이다. 
+VAE랑 AE는 형태는 비슷하게 생겼지만 수학적으로 보았을때, 아예 다른 관점으로 돌아가는 모델이다.   
+  
+
+이제 이것의 최대를 구하기 위해 KL Divergence항부터 보면, 먼저 $q _\phi$를 Gaussian distribution으로 가정하고 들어간다. 
+KL Divergence는 전개하는 방식이 이미 알려져있다. 따라서 그 식에 따라 전개를 하면 결과는 아래와 같다.
+
+<center>
+
+$$
+D_{K L}\left(q_{\phi}(\mathrm{z} \vert x) \| \mathcal{N}(0, l)\right)=\frac{1}{2} \sum_{i=1}^{D}\left(\sigma_{\mathrm{z}_{i}}^{2}+\mu_{\mathrm{z}_{i}}^{2}-\ln \left(\sigma_{\mathrm{z}_{i}}^{2}\right)-1\right)
+$$
+
+</center>
+
+Reconstruction 항의 경우, 기댓값이므로 적분을 해야겠지만 여러번 반복 샘플링하여 Monte-carlo technique으로 적분에 근사하는 값을 구하면 된다. 
+
+<center>
+
+$$
+\begin{aligned}
+\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x _i)} \left[\log{(p _\theta (x _i \vert \mathrm{z}))}\right]
+&= \int \log{\left( p _\theta (x _i \vert \mathrm{z}) \right)} q _\phi (\mathrm{z} \vert x_i ) d \mathrm {z} \\
+&\approx \dfrac{1}{L} \sum\nolimits _{z ^{i, l}} \log \left( p _\theta (x _i \vert \mathrm{z} ^ {i, l}) \right)
+\end{aligned}
+$$
+
+</center>
+
+그런데 이 과정에서 random한 샘플링을 하는 과정이 들어가기 때문에, backpropagation algorithm을 사용할 수가 없었는데 논문에서는 reparameterization trick을 써서 이에 대한 문제를 해결하였다. 이 트릭에 대한 자세한 과정은 여기서는 생략한다. 그래서 결국 Reconstruction 에러도 cross-entropy 형태로 나오게 된다. 
+  
+그래서 이제 VAE를 backpropagation을 통해 학습을 시킬 수 있게 되었고, 어떤 방향으로 학습을 해야하는지도 모두 알게 되었다. 
+물론 아직 완벽히 이해가 된 것은 아니지만, 전체적 흐름은 익혔고 더이상 파고들기엔 아직 지식이 부족하기 때문에 VAE는 여기까지만 기술하려고한다. :cry: 
+아무튼 이렇게해서, 지금까지 본 VAE는 input으로 넣은 값에 대하여 비슷한 이미지를 생성하는 generator model을 형성하게 된다.  
+  
+
+그 외에 AAE(Adversarial Auto-encoder)라는 것도 요즘 많이 사용한다고 하는데, 나중에 알아보도록 하자. 지금은 잘 모르겠다.
+
+<br />
+
+## Generative Adversarial Network, GAN
+GAN는 흔히 적대적 학습이라고 알려진 유명한 모델이다.  
+크게 보면 Discriminator, Generator로 이루어져있으며 두 장치가 서로를 속이려고 학습하고, 안 속으려고 학습하는 과정을 반복하여 원하는 generator를 형성하는 것이 목표이다.  
+
+!! 작성중
 
 <br />
 
 ## Reference  
-[Pixel RNN](http://ai-hub.kr/post/98/)  
+[Pixel RNN](http://ai-hub.kr/post/98/)   
+[오토인코더의 모든 것 - 1편~3편](https://bit.ly/36Q5RkB)   
+[AE, VAE](https://deepinsight.tistory.com/127)  
+[1시간만에 GAN(Generative Adversarial Network) 완전 정복하기](https://bit.ly/3tAidY1)   
