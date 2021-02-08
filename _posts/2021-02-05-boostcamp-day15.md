@@ -21,6 +21,9 @@ use_math: true
     - [Autoencoder](#autoencoder)
     - [Variational Auto-encoder](#variational-auto-encoder)
 - [Generative Adversarial Network, GAN](#generative-adversarial-network-gan)
+    - [Generative Adversarial Network](#generative-adversarial-network)
+    - [실제 구현과 논문의 차이점](#실제-구현과-논문의-차이점)
+    - [GAN 변형 모델](#gan-변형-모델)
 - [Reference](#reference)
 
 <br/>
@@ -206,10 +209,8 @@ AR model에는 아래와 같은 모델이 존재한다.
 <br/>
 
 ## Variational Auto-Encoder, VAE
-VAE/GAN 부분은.. 너무 어렵다 :cry: :cry: 
-그리고 이 내용들을 직접 정리하는 것은 내용도 너무 방대하다 :cry: 
-Reference로 달아둔 영상들을 참조하도록 하고, 여기 내용들은 전체적인 흐름만 다루도록 하려고 한다. 
-추후 여기에 익숙해진 후 다시 이 포스트의 내용을 채워넣도록 하자.
+<strong>:exclamation: Reference로 달아둔 영상들을 꼭 다시 보도록 하자.  
+내용이 방대하고 어려워 모든 것을 자세히 쓰지는 않았고, 여기서는 수식을 통해 전체적인 흐름을 자연스럽게 따라가는 것을 목표로 한다. </strong>
 
 <br/>
 
@@ -421,15 +422,234 @@ $$
 <br />
 
 ## Generative Adversarial Network, GAN
-GAN는 흔히 적대적 학습이라고 알려진 유명한 모델이다.  
-크게 보면 Discriminator, Generator로 이루어져있으며 두 장치가 서로를 속이려고 학습하고, 안 속으려고 학습하는 과정을 반복하여 원하는 generator를 형성하는 것이 목표이다.  
+<strong>:exclamation: Reference로 달아둔 영상들을 꼭 다시 보도록 하자.  
+VAE에 대한 내용과 동일하게, 여기서는 수식을 통해 자연스럽게 흘러가는 흐름을 짚어보도록 하자. </strong>  
 
-!! 작성중
+  
+GAN는 흔히 적대적 학습이라고 알려진 유명한 모델이다.  
+크게 보면 Discriminator, Generator로 이루어져있으며 두 장치가 서로를 속이려고 학습하고, 안 속으려고 학습하는 과정을 반복하여 원하는 generator를 형성하는 것이 목표이다. 
+이를 통해 unsupervised learning이 자연스럽게 이루어진다.  
+
+<br/>
+
+#### Generative Adversarial Network
+![GAN](/img/posts/15-5.png){: width="90%" height="90%"}{: .center}  
+- Discriminator는 들어온 image에 대하여 fake image이면 0을, real image이면 1을 출력한다.
+- Generator는 discriminator가 1을 출력하도록 이미지를 만든다.
+
+이를 <strong>Discriminator 입장에서의 수식으로</strong> 표현하면 다음과 같다.
+
+<center>
+
+$$
+\text{Loss} _D = \text{Error}(D(x),1) + \text{Error}(D(G(\mathrm{z})),0)
+$$
+
+</center>
+
+$D(x)$는 Discriminator로, real data $x$를 받으면 1을 출력하기를 원한다.   
+또한 $G(z)$는 Generator가 latent vector $\mathrm{z}$를 받았을 때 생성하는 값이다.  
+따라서 Discriminator 입장에서는 $D(G(z))$가 0이기를 바란다.  
+  
+
+한편, Generator 입장에서는 $D(G(z))$가 0이기를 바란다. 
+Real image를 discriminator가 0으로 판단하든, 1로 판단하든 generator는 관심이 없기 때문에 관련 항은 존재하지 않는다.
+
+<center>
+
+$$
+\text{Loss} _G = \text{Error}(D(G(\mathrm{z})),1)
+$$
+
+</center>
+
+결과가 binomial 값이기 때문에 결국 이를 cross entropy error 식으로 표현할 수 있으며 이는 다음과 같다.
+
+<center>
+
+$$
+\text{CEE} = -q \log(p) - (1-q) \log(1-p) \\
+\text{Loss} _D = -\log(D(x)) -\log(1-D(G(\mathrm{z}))) \\
+\text{Loss} _G = -\log(D(G(\mathrm{z})))
+$$
+
+</center>
+
+이제 위 식을 최소화하면 된다.  
+  
+실제 논문에서는 D에 대한 loss를 최대화하고, G에 대한 loss를 최소화하는 방향으로 식을 합쳤다. 
+그 결과 다음과 같은 식이 나온다.
+
+<center>
+
+$$
+\min_ G \max_ D V(D, G) = \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log D(x) \right] + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z}))) \right]
+$$
+
+</center>
+
+여기서도 latent vector $\mathrm{z}$는 Gaussian distribution을 따른다고 가정한다. 
+Discriminator는 우변의 두 항 모두를 maximize 하기를 원한다. 
+다만 우변 첫번째 식은 Genertor와 관련이 없기 때문에 Generator 즉 $\min\_G$는 우변 두번째 식을 최소화하는 것에만 관심이 있다.  
+  
+기댓값은 적분이고, 이를 discriminator 입장에서 최대화하기 위해서는 미분을 통해 극점을 찾아야 한다.
+
+<center>
+
+$$
+\begin{aligned}
+\min_ G \max_ D V(D, G) 
+&= \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log D(x) \right] + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z}))) \right] \\
+&= \int \left[ P _{x \sim p_{\text{data}}(x)} x \log D(x) + P _{x \sim p_{G}(x)} x \log (1 - D(x)) \right] dx
+\end{aligned}
+$$
+<br/>
+$$
+\partial _D \min_ G \max_ D V(D, G) = P _{x \sim p_{\text{data}}(x)} x \log D(x) + P _{x \sim p_{G}(x)} x \log (1 - D(x)) = 0
+$$
+</center>
+
+<br />
+
+이를 풀기 위해 아래 식을 이용하면,
+<center>
+
+$$
+y = a \log(y) + b \log(1-y)
+$$
+$$
+y ^\prime = \dfrac{a}{y} - \dfrac{b}{1-y} = 0
+$$
+$$
+y ^{*} = \dfrac{a}{a + b}
+$$
+
+</center>
+
+결국
+
+<center>
+
+$$
+D ^{*} _G (x) = \dfrac{p_{\text{data}}(x)}{p_{\text{data}}(x) + p_{G}(x)}
+$$
+
+</center>
+
+이 된다.
+  
+지금까지 discriminator가 원하는 값을 최대화하기위한 수식을 살펴보았다. 
+우리의 목표는 generator가 discriminator를 속일 수 있도록 학습시키는 것이다.
+이제 generator 입장에서 위 discriminator의 수식을 대입해보면,
+
+<center>
+
+$$
+V(G, D ^{*} _G (x)) 
+= \int \left( \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log \left( \dfrac{p_{\text{data}}(x)}{p_{\text{data}}(x) + p_{G}(x)}  \right) \right] \\ 
+\hspace{3cm} + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log \left(\dfrac{p_G (x)}{p_{\text{data}}(x) + p_{G}(x)} \right) \right] \right) dx \\
+= \int \left( \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log \left( \dfrac{p_{\text{data}}(x)}{\frac{p_{\text{data}}(x) + p_{G}(x)}{2}} \right) \right] \\ 
+\hspace{4cm} + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log \left(\dfrac{p_G (x)}{\frac{p_{\text{data}}(x) + p_{G}(x)}{2}} \right) \right] \right) dx - \log 4 \\
+= \underbrace{D_{\text{KL}} \left[ p_{\text{data}}, \; \frac{p_{\text{data}} + p_{G}}{2} \right] + D_{\text{KL}} \left[ p_G, \; \frac{p_{\text{data}} + p_{G}}{2} \right]}_{2 \times \text{Jenson-Shannon Divergence (JSD)}} - \log 4 \\
+= 2D_{\text{JSD}} \left[ p_{\text{data}}, p_G \right] - \log 4
+$$
+
+</center>
+
+따라서 $V$가 최소가 되는 경우는 $D\_{\text{JSD}} = 0$ 즉 $p=q$인 경우이다. (원래 데이터의 확률 분포와 Generator의 확률 분포가 같은 경우)
+이 경우 $D ^{*} \_G (x) = \frac{1}{2}$이고 $V(D, G) = -2\log 2$가 된다. 
+따라서 generator는 $D\_{\text{JSD}} = 0$이 되도록 학습을 진행하게 된다.  
+  
+다만 이 방법은 보다시피 <strong>discriminator의 학습 방향을 고정시켜놓고 찾은 값이다.</strong> 
+실제로는, discriminator와 generator가 함께 학습을 하기 때문에 위 과정은 이론적인 이야기이고 실제 모델링은 조금 상이할 것으로 예상된다.   
+  
+GAN 모델은 기존의 VAE 등의 모델보다 훨씬 정확한 학습을 할 수 있다. 또한 확률 input의 확률 모델을 명확하게 정의하지 않아도 동작이 가능하다. 
+다만 여전히 평가의 기준을 세우기 애매하여 사람이 직접 그림을 보고 판단해야한다는 한계점이 존재한다.
+
+<br />
+  
+#### 실제 구현과 논문의 차이점
+
+<center>
+
+$$
+\min_ G \max_ D V(D, G) = \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log D(x) \right] + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z}))) \right]
+$$
+
+</center>
+
+위 식은 아까 본 Loss 식과 똑같다. 
+그런데 우변 두번째 식이 사실 Generator 입장에서 학습할 때 미분을 하게 되는데 저 상태 그대로 미분하면 기울기가 상대적으로 낮아 학습이 빠르게 되지 않는다. 
+
+![GAN_gene1](/img/posts/15-6.png){: width="90%" height="90%"}{: .center}  
+> Reference의 최윤제님 GAN 강의中  
+
+처음 학습할때는 당연히 generator는 전혀 엉뚱한 이미지를 생성하게 될텐데, 이러면 generator의 학습이 빠르게 되지 않는 이상 discriminator가 압도적으로 빠르게 학습될 가능성이 있다. 따라서 실제 구현에서는 다음과 같이 식을 변경하여 사용한다.
+
+<center>
+
+$$
+\min_ G \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z}))) \right]
+\rightarrow \max_ G \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(D(G(\mathrm{z}))) \right]
+$$
+
+</center>
+
+![GAN_gene2](/img/posts/15-7.png){: width="90%" height="90%"}{: .center}   
+> Reference의 최윤제님 GAN 강의中  
+
+지향점은 같으나 실제 구현에서 더 좋은 성능을 내기 위해 위와 같이 구현한다.  
+
+<br />
+
+#### GAN 변형 모델
+- DCGAN
+    ![DCGAN](/img/posts/15-8.png){: width="90%" height="90%"}{: .center}  
+    + CNN을 활용한 GAN 모델이다.
+    + 기존 GAN에서는 FC layer를 사용한 반면, DCGAN은 Convolution layer를 사용하며, Generator는 Deconvolution을 사용한다.
+    + DCGAN에서는 이미지가 블럭화되는 현상을 막기 위해 pooling layer를 사용하지 않고 stride size가 2이상인 convolution/deconvolution을 사용한다.
+    + 학습 안정을 위해 batch normalization / Adam optimzer을 사용한다.
+
+- InfoGAN
+    ![InfoGAN](/img/posts/15-11.png){: width="90%" height="90%"}{: .center} 
+    + input으로 $\mathrm{z}$뿐만 아니라, code라는 latent variable $\mathrm{c}$를 추가로 함께 넣어준다.
+    + 무언가 생성할 시 GAN이 특정 특징분포에 집중할 수 있도록 만들어준다.
+    + 예를 들어 MNIST에서는 $\mathrm{c}$를 넣어줌으로써 글씨의 두께, 글씨의 기울기 등을 변화시킬 수 있다.
+- Text2Image
+    + 문장이 주어지면 해당 문장에 맞는 이미지를 만들어내는 연구에 대한 논문이다.
+    + 최근에 DALL-E 모델이 발표되었는데, 이 모델 역시 Text2Image 컨셉의 모델로 성능이 뛰어나다고 한다. <strong>다만 이 모델은 Transformer에 기반한 모델이다.</strong>
+    + Input이 문장이고 이를 통해 이미지 output을 내놓기 때문에 모델이 매우 복잡하다.
+- CycleGAN
+    ![CycleGAN](/img/posts/15-9.png){: width="100%" height="100%"}{: .center} 
+    > Reference의 최윤제님 GAN 강의中  
+    + 이미지의 domain/style을 바꾸는 GAN이다. 따라서 generator는 latent vector가 아닌 image 자체를 받게 된다.
+    + 서로 다른 두 GAN 네트워크를 주고, 뒷 부분 GAN은 Fake Image를 Real Image로 다시 돌리는 역할을 한다. (Cycle 느낌)
+        - 만약 GAN이 하나만 있다면 generator는 discriminator를 속이기 위해 얼룩말의 형체를 유지하지 않고 말 사진을 생성하려고 할 것이다.
+        - GAN이 2개 있으면 맨 끝에 다시 복원된 이미지가 원래 이미지와 같아야 하기 때문에(이 두 개가 Loss의 기준) 모양을 유지하려고 한다.
+    + 여기서 사용된 L2 loss가 cycle consistency loss이다.
+        ![cycle-consistency-loss](/img/posts/15-10.png){: width="90%" height="90%"}{: .center} 
+        - 서로 다른 GAN 네트워크를 2개 사용하였기 때문에 cycle-cosistency loss를 줄일 수 있다.
+        - GAN이 1개일 때는 우리가 기존에 구하던 loss는 줄어들 수 있지만, cylce-consistency loss의 최소화를 보장하지 못한다.
+        - cycle consistency loss는 중요한 concept이니 잘 알아두도록 하자.
+- Star-GAN
+    + 이미지를 단순히 생성하거나, 이미지의 도메인을 바꾸는게 아니라 이미지 자체를 컨트롤할 수 있는 모델이다.
+    + 예를 들어 사람으로 치면 성별을 바꾸거나, 피부 색을 바꾸거나, 눈 모양, 입 모양 등을 바꾸어 이미지에서 드러나는 감정도 바꿀 수 있는 모델이다.
+
+- Progressive-GAN
+    + 고차원(고해상도)의 이미지를 생성할 수 있는 모델이다.
+    ![progressive_GAN](/img/posts/15-11.png){: width="90%" height="90%"}{: .center} 
+    + 위와 같이 레이어의 크기를 점점 늘려간다는 아이디어에 기반하여 네트워크의 부담을 최대한 줄이면서 고해상도 이미지를 생성할 수 있다.
+
+그 외에도 최근 굉장히 많은 GAN 관련 논문이 세계에서 쏟아지고 있다고 한다. 
+따라서 앞으로도 GAN에 대해 관심을 가지되, 모두 알려고 하지 말고 중요한 아이디어들을 위주로 잘 캐치해나가야할 필요성이 있다.
+또한 VAE와 GAN간의 차이점을 이해하고 상황이 주어졌을 때 VAE와 GAN 중 어떤 것을 활용할지 고를 수 있는 시각을 기르자. 
 
 <br />
 
 ## Reference  
-[Pixel RNN](http://ai-hub.kr/post/98/)   
+[Pixel Recurrent Neural Network](http://ai-hub.kr/post/98/)   
 [오토인코더의 모든 것 - 1편~3편](https://bit.ly/36Q5RkB)   
-[AE, VAE](https://deepinsight.tistory.com/127)  
-[1시간만에 GAN(Generative Adversarial Network) 완전 정복하기](https://bit.ly/3tAidY1)   
+[[AutoEncoder의 모든것] Variational AutoEncoder란 무엇인가](https://deepinsight.tistory.com/127)    
+[VARIATIONAL-AUTOENCODER와 ELBO(EVIDENCE LOWER BOUND)](https://bit.ly/36V2RU6)  
+[1시간만에 GAN(Generative Adversarial Network) 완전 정복하기](https://bit.ly/3tAidY1)     
+[Generative Adversarial Network](https://hyeongminlee.github.io/post/gan001_gan/)  
