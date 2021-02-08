@@ -165,7 +165,7 @@ $$
 <center>
 
 $$
-L(\theta;\mathrm{X}) = \prod\limits _{i=1}^{n} P(\text{x}_{i} | \theta) \;\; \Rightarrow \;\; \log L(\theta;\mathrm{X}) \sum\limits _{i=1}^{n} = P(\text{x}_{i} | \theta)
+L(\theta;\mathrm{X}) = \prod\limits _{i=1}^{n} P(\text{x}_{i} | \theta) \;\; \Rightarrow \;\; \log L(\theta;\mathrm{X}) = \sum\limits _{i=1}^{n} P(\text{x}_{i} | \theta)
 $$
 
 </center>

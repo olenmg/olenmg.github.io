@@ -253,13 +253,21 @@ manifold를 구하는 방법에는 사실 여러가지가 있지만, 대부분 K
 그래서 VAE라는 컨셉이 등장하게된다. 이것은 generative model로 입력 $x$와 비슷한 무언가를 생성해내는것이 목적이다. 
 
 ![vae](/img/posts/15-4.png){: width="100%" height="100%"}{: .center}  
-그런데 일단 무언가 생성을 하려면 $x$를 만들 수 있는 latent vector $\mathrm{z}$의 분포를 알아야한다.  
-만약 latent vector의 분포를 알게되면 그 분포에서 무언가 하나를 샘플링해서 모델에 넣으면 $x$와 같지는 않지만 비슷한 출력이 나오게 될 것이다.  
+그런데 일단 무언가 생성을 하려면 $x$를 만들 수 있는 latent vector $\mathrm{z}$의 분포를 알아야한다. 즉, latent space를 찾아야 한다.
+만약 latent vector의 분포(latent space)를 알게되면 그 분포에서 무언가를 샘플링해서 모델에 넣으면 $x$와 비슷한 출력이 나오게 될 것이다.  
 
-문제는 그 샘플링 함수를 우리는 모른다. 그래서 이를 추정하기 위해 <strong>Variance Inference(VI) 방법을 사용한다.</strong>   
-먼저 우리가 구하고자하는 것은 posterior distribution으로 $p \_{\theta} (\mathrm{z} \vert x)$로 표기한다.   
-그리고 이에 근사하는 variational distribution $q \_{\theta} (\mathrm{z} \vert x)$를 찾는 것이 우리의 목표이다.  
-여기서 기호의 의미를 잠깐만 해석하자면, $\mathrm{z} \vert x$라는 형태는 모두 $x$라는 데이터가 주어졌을 때 $\mathrm{z}$의 분포($p$, $q$)를 뜻한다.
+문제는 그 샘플링 함수를 우리는 모른다. 데이터가 매우 많고 고차원이기 때문에 이 분포를 찾거나 이 분포를 따르는 새로운 데이터를 만드는 것이 쉽지 않다. 
+그래서 여기서 우리는 일단 $x$가 주어졌을 때 latent vector $\mathrm{z}$의 분포를 우리가 잘 알고 있는 정규분포 $\mathrm{z} \sim \mathscr{N} (0, 1)$로 표현하고자 한다. 정규분포는 평균과 표준편차만 찾는다면 그 형태를 표현할 수 있다.   
+  
+먼저 Encoder는 들어온 데이터의 평균과 표준편차를 출력할 것이다. 이후 이를 따르는 정규분포에서 새로운 잠재변수 $\mathrm{z}$를 샘플링한다. 
+잠재벡터는 디코더를 거쳐 새로운 데이터를 생성할 것이다.  
+
+
+이를 위해 <strong>Variance Inference(VI) 방법을 사용한다.</strong>    
+
+먼저 데이터 $x$가 주어졌을 때의 $\mathrm{z}$의 확률분포는 posterior distribution으로 $p \_{\theta} (\mathrm{z} \vert x)$로 표기한다. 
+그리고 이에 근사하는 variational distribution $q \_{\theta} (\mathrm{z} \vert x)$를 찾는 것이 우리의 목표이다. 
+이제 주어진 샘플 $x$의 분포를 한 번 잘 표현해보자.
 
 <center>
 
@@ -306,7 +314,8 @@ $$
 </center>
 
 $p \_{\theta} (\mathrm{z} \vert x)$과 $q \_{\theta} (\mathrm{z} \vert x)$ 간의 거리(KL-Divergence)는 두번째 항이다. 
-우리는 그 항을 최소화해야하는데, 거듭 말하지만 posterior distribution은 불명이다. 따라서 두번째 항을 최소화하기 위해 <strong>첫번째 항을 최대화하는 방법을 취한다.</strong>  
+그런데 두번째 항에는 $x$가 포함되어있는 $p \_\theta (\mathrm{z} \vert x)$이 포함되어있다. 이 항은 $x$의 분포가 매우 복잡하기 때문에 알 수 없다고 앞에서 언급하였다. 
+그래서 우리는 그 항을 최소화해야하는데 그 값을 알 수 없다. 따라서 두번째 항을 최소화하기 위해 <strong>첫번째 항을 최대화하는 방법을 취한다.</strong>  
   
 첫번째 항은 ELBO(Evidence Lower Bound)를 뜻하는데, 이를 maximization하는 $\underset{\phi}{\mathrm{argmax}} \; ELBO (\phi)$를 찾아야한다. 
 다시 ELBO term을 풀어서 전개해보면
@@ -318,33 +327,30 @@ $$
 ELBO(\phi)
 &=\int \log{\left( \dfrac{p(x, \mathrm{z})}{q _\phi (\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} \\ 
 &=\int \log{\left( \dfrac{p(x \vert \mathrm{z}) p(z)}{q _\phi (\mathrm{z} \vert x)} \right)} q _\phi (\mathrm{z} \vert x)d \mathrm{z} \\
-&=\int \log{(p(x \vert \mathrm{z}))} q _\phi (\mathrm{z} \vert x)d \mathrm{z} - \log{\left( \dfrac{q _\phi (\mathrm{z} \vert x)}{p(\mathrm{z}} \right) q _\phi (\mathrm{z} \vert x)d \mathrm{z}} \\
+&=\int \log{(p(x \vert \mathrm{z}))} q _\phi (\mathrm{z} \vert x)d \mathrm{z} - \int \log{\left( \dfrac{q _\phi (\mathrm{z} \vert x)}{p(\mathrm{z})} \right) q _\phi (\mathrm{z} \vert x)d \mathrm{z}} \\
 &=\underbrace{\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)} \left[\log{(p(x \vert \mathrm{z}))}\right]}_{\text{Reconstruction Term}} - \underbrace{KL(q _\phi (\mathrm{z} \vert x) \Vert p(\mathrm{z}))}_{\text{Prior Fitting Term}}
 \end{aligned}
 $$
 
 </center>
 
-참고로, <strong>두번째 항의 앞의 KL과 인자가 다른 점에 유의해야한다. </strong>
-그런데 첫번째 항을 보면 결국 이게 Decoder가 $\mathrm{z}$를 $x$로 만들 때의 확률 $g \_\theta (x \vert \mathrm{z})$과 같고, 
-이것 역시 maximize해야하므로 ELBO term을 maximize하는 것은 결국 Decoder의 $g \_\theta (x \vert \mathrm{z})$을 maximize하는 것과 같다. 
-그리고 이것이 결국 Maximum Likelihood Estimation(MLE)하는 작업이다. 
-한편 두번째 항의 경우, 같은 Restruction Error을 가진 $q \_\phi$가 여러개 있다면 기왕이면 Prior와 같은 모양이 되었으면 좋겠다라는 점을 반영한 항이다. 
-VAE랑 AE는 형태는 비슷하게 생겼지만 수학적으로 보았을때, 아예 다른 관점으로 돌아가는 모델이다.   
+참고로, <strong>두번째 항은 앞의 KL 항과 인자가 다르다. (결론부터 말하면 이건 계산이 가능하다) </strong>   
+  
+첫번째 항은 decoder가 $\mathrm{z}$를 $x$로 만드는 확률분포 $p \_\theta (x \vert \mathrm{z})$과 같고, 
+이것 역시 maximize해야하므로 첫번째 항을 maximize하는 것은 결국 decoder의 $p \_\theta (x \vert \mathrm{z})$을 maximize하는 것과 같다. 
+(Maximum Likelihood Estimation(MLE)을 하는 것과 동일)   
+  
+정리하면, $x$가 나타날 확률을 계산하는 것은 우리가 가지고 있는 샘플들에 대한 확률 분포를 찾고자 하는 것이고,
+지금 하고자 하는 것은 $\mathrm{z}$로부터 $x$가 나타날 확률을 최대화하는 것이므로 결국 MLE를 사용하는 것과 같다. 
+
+한편 두번째 항의 경우, 같은 Restruction Error을 가진 $q \_\phi$가 여러개 있다면 기왕이면 Prior와 같은 모양이 되었으면 좋겠다라는 점을 반영한 항이다.  
+  
+지금까지만 봐도, VAE랑 AE는 형태는 비슷하게 생겼지만 수학적으로 보았을때 아예 다른 관점으로 돌아가는 모델이다.   
   
 
-이제 이것의 최대를 구하기 위해 KL Divergence항부터 보면, 먼저 $q _\phi$를 Gaussian distribution으로 가정하고 들어간다. 
-KL Divergence는 전개하는 방식이 이미 알려져있다. 따라서 그 식에 따라 전개를 하면 결과는 아래와 같다.
-
-<center>
-
-$$
-D_{K L}\left(q_{\phi}(\mathrm{z} \vert x) \| \mathcal{N}(0, l)\right)=\frac{1}{2} \sum_{i=1}^{D}\left(\sigma_{\mathrm{z}_{i}}^{2}+\mu_{\mathrm{z}_{i}}^{2}-\ln \left(\sigma_{\mathrm{z}_{i}}^{2}\right)-1\right)
-$$
-
-</center>
-
-Reconstruction 항의 경우, 기댓값이므로 적분을 해야겠지만 여러번 반복 샘플링하여 Monte-carlo technique으로 적분에 근사하는 값을 구하면 된다. 
+이제 이것의 최대를 구해보자.  
+  
+Reconstruction 항의 경우, 기댓값이므로 적분을 해야겠지만 여러번 반복 샘플링하여 Monte-carlo technique으로 적분에 근사하는 값을 구하면 된다.   
 
 <center>
 
@@ -358,14 +364,59 @@ $$
 
 </center>
 
-그런데 이 과정에서 random한 샘플링을 하는 과정이 들어가기 때문에, backpropagation algorithm을 사용할 수가 없었는데 논문에서는 reparameterization trick을 써서 이에 대한 문제를 해결하였다. 이 트릭에 대한 자세한 과정은 여기서는 생략한다. 그래서 결국 Reconstruction 에러도 cross-entropy 형태로 나오게 된다. 
-  
-그래서 이제 VAE를 backpropagation을 통해 학습을 시킬 수 있게 되었고, 어떤 방향으로 학습을 해야하는지도 모두 알게 되었다. 
-물론 아직 완벽히 이해가 된 것은 아니지만, 전체적 흐름은 익혔고 더이상 파고들기엔 아직 지식이 부족하기 때문에 VAE는 여기까지만 기술하려고한다. :cry: 
-아무튼 이렇게해서, 지금까지 본 VAE는 input으로 넣은 값에 대하여 비슷한 이미지를 생성하는 generator model을 형성하게 된다.  
+그래서 결국 계산해보면 Reconstruction error는 cross-entropy 형태로 나오게 된다.  
+
+<center>
+
+$$
+\mathbb{E}_{q_{\phi}(\mathrm{z} \vert x)} \left[\log{(p(x \vert \mathrm{z}))}\right] \\
+= \sum _i x_i \log(\text{Decode}(\text{Encode}(x_i))) + (1-x_i) \log(1 - \text{Decode}(\text{Encode}(x_i))) \\
+= \sum _i x_i \log{\hat{x_i}} + (1- x_i) \log(1- \hat{x_i})
+$$
+
+</center>
+
+이제 두번째 항(KL Divergence 항)을 보자.
+참고로, KL Divergence는 확률분포 두 개가 모두 Gaussian distribution을 따를 때 간소화하여 계산하는 방법이 이미 알려져있다. 
+<strong>근데 마침 해당 항에 표현된 두 확률분포가 모두 가우시안 분포를 따른다! </strong>   
   
 
-그 외에 AAE(Adversarial Auto-encoder)라는 것도 요즘 많이 사용한다고 하는데, 나중에 알아보도록 하자. 지금은 잘 모르겠다.
+$p(\mathrm{z})$는 앞서 Gaussian distribution을 따르는 것으로 가정하였다. 
+$q _\phi (\mathrm{z} \vert x)$ 또한 $\mathrm{z}$가 정규 분포를 따르므로 정규 분포를 따른다. 
+
+<center>
+
+$$
+\mathrm{z} \sim \mathscr{N} (0, 1) \\
+q _\phi (\mathrm{z} \vert x) \sim \mathscr{N} (\mu _{\mathrm{z}_i}, \sigma _{\mathrm{z}_i})
+$$
+
+</center>
+
+이를 반영하면 계산 결과는 다음과 같다.
+
+<center>
+
+$$
+D_{K L}\left(q_{\phi}(\mathrm{z} \vert x) \| \mathcal{N}(0, 1)\right)=\frac{1}{2} \sum_{i=1}^{D}\left(\sigma_{\mathrm{z}_{i}}^{2}+\mu_{\mathrm{z}_{i}}^{2}-\ln \left(\sigma_{\mathrm{z}_{i}}^{2}\right)-1\right)
+$$
+
+</center>
+
+이렇게해서 원하는 분포에 근사할 수 있도록 하는 방법을 알 수 있게 되었다.  
+  
+그런데 $\mathrm{z}$를 샘플링을 하는 과정이 구해진 분포에서 그냥 random으로 하게 되면 backpropagation algorithm을 사용할 수가 없다. (encoder의 파라미터와 샘플링된 $\mathrm{z}$간의 연결관계를 찾을 수 없다.) 
+논문에서는 reparameterization trick을 써서 이에 대한 문제를 해결하였다. 
+계산된 분포 $\mathscr{N}(\mu, \sigma)$에 epsilon $\epsilon$을 더하는 방식으로 $\mathrm{z}$를 샘플링하면 추후 학습 시 $\mathrm{z}$가 encoder의 parameter에 영향을 미치는 관계를 찾아갈 수 있다. 이 트릭에 대한 자세한 과정은 여기서는 생략한다.   
+      
+아직 완벽히 이해가 된 것은 아니지만, 전체적 흐름은 익혔고 더이상 파고들기엔 아직 지식이 부족하기 때문에 VAE는 여기까지만 기술하려고한다. :cry: 
+  
+
+그 외에 AAE(Adversarial Auto-encoder)라는 변형 VAE모델도 있다.   
+  
+앞서 나온 VAE는 latent space를 가우시안 분포로 가정하였는데, 실제로는 가우시안 분포로 하였을 때 오차가 크게 발생할 수도 있다. 
+이를 위해 이 모델에서는 adversarial autoencoder를 사용하여 latent distribution과 가우시안 분포 사이의 오차를 최소화해준다.  
+  
 
 <br />
 
