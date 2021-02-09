@@ -637,7 +637,7 @@ $$
 
 - Progressive-GAN
     + 고차원(고해상도)의 이미지를 생성할 수 있는 모델이다.
-    ![progressive_GAN](/img/posts/15-11.png){: width="90%" height="90%"}{: .center} 
+    ![progressive_GAN](/img/posts/15-12.png){: width="90%" height="90%"}{: .center} 
     + 위와 같이 레이어의 크기를 점점 늘려간다는 아이디어에 기반하여 네트워크의 부담을 최대한 줄이면서 고해상도 이미지를 생성할 수 있다.
 
 그 외에도 최근 굉장히 많은 GAN 관련 논문이 세계에서 쏟아지고 있다고 한다. 
