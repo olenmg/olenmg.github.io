@@ -88,3 +88,50 @@ table {
     &:visited { color: white; }
     &:hover { color: white; background-color: #038f6a; text-decoration: none;}
 }
+
+/* custom table */
+.table-latitude {
+    width: 100%;
+    caption {
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #ff7f50;
+        text-align: center;
+    }
+    thead {
+        border-top: 2px solid #ff7f50;
+        border-bottom: 2px solid #ff7f50;
+        th {
+            text-transform: uppercase;
+            text-align: center;
+            padding: 10px;
+            color: blue;
+            border: 1px solid #F1F1F1;
+        }
+    }
+    tbody {
+        tr {
+            border-bottom: 1px solid #F1F1F1;
+            color: grey;
+            td {
+                padding: 10px;
+                border: 1px solid #F1F1F1;
+            }
+            th {
+                padding-left: 10px;
+                border: 1px solid #F1F1F1;
+            }
+        }
+    }
+    tfoot {
+        color: #ff7f50;
+        font-style: italic;
+        border-bottom: 2px solid #ff7f50;
+        tr {
+            td {
+                padding: 10px;
+                border: 1px solid #F1F1F1;
+            }
+        }
+    }
+}
