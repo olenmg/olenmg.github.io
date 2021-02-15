@@ -19,6 +19,7 @@ use_math: true
     - [NaiveBayes Classifier for Document Classification](#naivebayes-classifier-for-document-classification)
     - [NaiveBayes Classifier](#naivebayes-classifier)
     - [실제 적용 예시](#실제-적용-예시)
+    - [실제 구현에서의 주의점](#실제-구현에서의-주의점)
 - [Word2Vec](#word2vec)
     - [분산 표현](#분산-표현)
     - [Word2Vec 수행](#word2vec-수행)
@@ -191,19 +192,49 @@ test data에 나타난 각 단어 $w\_i$에 대하여 각 클래스 $c\_i$에 �
 <center>
 
 $$
-P(c_\text{CV} \vert d) = P(c _\text{CV}) \prod\nolimits _{w \in W} P(w \vert c _\text{CV}) = \dfrac{1}{2} \times \dfrac{1}{14} \times \dfrac{1}{14} \times \dfrac{1}{14} \times \dfrac{1}{14} \approx 0.000013
+P(c_\text{CV} \vert d) = P(c _\text{CV}) \prod _{w \in W} P(w \vert c _\text{CV}) = \dfrac{1}{2} \times \dfrac{1}{14} \times \dfrac{1}{14} \times \dfrac{1}{14} \times \dfrac{1}{14} \approx 0.000013
 $$
 
 $$
-P(c_\text{NLP} \vert d) = P(c _\text{NLP}) \prod\nolimits _{w \in W} P(w \vert c _\text{NLP}) = \dfrac{1}{2} \times \dfrac{1}{10} \times \dfrac{2}{10} \times \dfrac{1}{10} \times \dfrac{1}{10} \approx 0.0001
+P(c_\text{NLP} \vert d) = P(c _\text{NLP}) \prod _{w \in W} P(w \vert c _\text{NLP}) = \dfrac{1}{2} \times \dfrac{1}{10} \times \dfrac{2}{10} \times \dfrac{1}{10} \times \dfrac{1}{10} \approx 0.0001
 $$
 
 </center>
 
 이에 따라 문장 $d$는 확률이 더 높은 NLP로 분류된다. 
+
+<br/>
+
+#### 실제 구현에서의 주의점
+- laplace smoothing  
+    어떤 클래스에 input에 나온 단어가 한 개도 존재하지 않으면 다른 단어가 아무리 많이 나와도 조건부 확률이 0이 나오게되는 상황이 발생한다. 
+    이를 방지하기 위해 나이브베이즈 분류에서는 laplace smoothing 등의 regularization 기법 등을 추가로 이용하게 된다.  
   
-추가적으로, 어떤 클래스에 input에 나온 단어가 한 개도 존재하지 않으면 다른 단어가 아무리 많이 나와도 조건부 확률이 0이 나오게되는 상황이 발생한다. 
-이를 방지하기 위해 나이브베이즈 분류에서는 laplace smoothing 등의 regularization 기법 등을 추가로 이용하게 된다.  
+    laplace smoothing을 해주면 한 word에 대한 likelihood에서 smoothing 상수가 분모, 분자에 더해지게 되어 아래와 같게 된다.
+
+    <center>
+
+    $$
+    P(w_k \vert c_i) = \dfrac{n_k + \alpha}{n + \alpha * K}
+    $$
+
+    </center>
+
+    여기서 $\alpha$는 hyper parameter(smoothing parameter)이다. $K$는 데이터의 갯수(즉 원핫 벡터의 차원)이다. 
+    일반적으로 $\alpha$ 값으로 1을 많이 사용한다.  
+
+- likelihood with log   
+    조건부확률 값 계산시 $\prod\nolimits \_{w\_i \in W} P(w \_i \vert c)$ 라는 식을 사용하게 되는데, 단어의 수가 많아질수록 0과 1사이의 값을 여러번 곱하다보면 컴퓨터가 제대로된 계산을 하지 못하게 되는 상황이 발생하게 된다.  
+
+    따라서 실제 구현에서는 구한 각 likelihood에 log를 취하여 더해주는 방식으로 원하는 값을 구하고 예측을 수행한다.  
+    <center>
+
+    $$
+    \log \left(\prod\nolimits _{w_i \in W} P(w _i \vert c) \right) = \sum\nolimits _{w_i \in W} \log  P(w _i \vert c)
+    $$
+
+    </center>
+    여기에 마지막으로 log를 취한 prior를 더해주면 원하는 조건부 확률을 최종적으로 얻을 수 있다.
 
 <br/>
 
