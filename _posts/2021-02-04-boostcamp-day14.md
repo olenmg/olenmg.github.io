@@ -230,10 +230,10 @@ $$
 이를 해결하기 위해 BPTT 계산시 중간중간 $H_t$간 연결을 끊어주는 기법도 제시되었다. (Truncated BPTT)  
 이렇게 하면 가중치 하나는 주변 몇 개의 $H_t$에만 영향을 받으므로 곱해지는 값이 줄어들게 되어 비교적 안정적이게 된다.  
   
-<strong>그리고 이후 LSTM, GRU 등의 advanced RNN을 도입하여 이 문제를 해결하기도 하였다. </strong> 
+<strong>그리고 이후 LSTM, GRU 등의 advanced RNN을 도입하여 이 문제를 해결하였다. </strong> 
 
 ![RNN_vanishing_exploding](/img/posts/14-2.png){: width="90%" height="90%"}{: .center}  
-> 위와 같이 activation function 때문에 $h_t$ 자체에서도 exploding/vanishing이 나타나기도 한다.  
+> 위와 같이 W가 여러번 곱해지면서 exploding/vanishing이 나타난다.  
    
 <br />
 
@@ -284,7 +284,7 @@ LSTM은 아래와 같은 구조를 가졌다.
         
         </center>
         - 새로 들어온 정보 $x_t$에 대하여 어떤 정보를 그대로 유지할지 sigmoid / tanh 함수로 판단하여 후보 $\tilde{C_t}$를 정한다.
-        - 
+
     + Update cell 
         ![LSTM_update](/img/posts/14-8.png){: width="50%" height="50%"}{: .center}
         - input gate와 forget gate 각각에서 나온 output을 더하여 다음 cell state를 최종적으로 업데이트(결정)한다.
@@ -294,11 +294,11 @@ LSTM은 아래와 같은 구조를 가졌다.
         i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)
         $$
         $$
-        C_t = f_t * C_{t-1} + i_t * {\tilde{C_t}}
+        C_t = f_t \circ C_{t-1} + i_t \circ {\tilde{C_t}}
         $$
         
         </center>
-        - forget gate쪽의 경우 $f_t$를 이전 cell state $C_{t-1}$과 곱하여 잊을 정보를 진짜 잊어버린다.
+        - forget gate쪽의 경우 $f\_t$를 이전 cell state $C_{t-1}$과 곱하여 잊을 정보를 진짜 잊어버린다. ($f\_t$는 시그모이드를 통과했으므로 잊을 정보의 비율을 내포하고 있다)
         - input gate쪽의 경우 구한 $\tilde{C_t}$에 $i_t$를 곱한다. $i_t$는 기억할 값을 얼마나 강하게 기억할지 scaling 하는 역할을 한다.
 
     + Output gate
@@ -310,7 +310,7 @@ LSTM은 아래와 같은 구조를 가졌다.
         o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)
         $$
         $$
-        h_t = o_t * \tanh{(C_t)}
+        h_t = o_t \circ \tanh{(C_t)}
         $$
         
         </center>
@@ -361,7 +361,8 @@ PyTorch로 LSTM을 구현하다가 발견한 몇 가지를 여기 기술한다.
 ![multi_layer_LSTM](/img/posts/14-15.png){: width="80%" height="80%"}{: .center}  
 - LSTM의 cell state dimension과 hidden state dimension은 서로 같아야 한다
 - LSTM에는 생각보다 parameter 갯수가 많다.
-    + 게이트의 갯수는 3개지만 사실 update cell에서도 update 스케일을 정하기 위한 가중치가 있어, 총 가중치는 4개가 존재한다.
+    + 게이트의 갯수는 3개지만 사실 update cell에서도 update 스케일을 정하기 위한 가중치가 있어, 총 가중치는 4개가 존재한다. 
+      (노란색 sigmoid/tanh를 통과하는 $h\_{t-1}$, $x\_t$가 총 4쌍이다)
         - 각각의 가중치는 input과 한번, hidden과 한번 곱해진다고도 이해할 수 있다.(실제로는 concatenation해서 곱한다)
         - 따라서 input에 대한 가중치 갯수는 (input dim) * (hidden dim(=output dim)) * 4개이다.
         - 따라서 hidden에 대한 가중치 갯수는 (hidden dim) * (hidden dim(=output dim)) * 4개이다.  
