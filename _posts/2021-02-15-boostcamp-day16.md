@@ -27,6 +27,7 @@ use_math: true
 - [GloVe](#glove)
     - [Co-occurrence Matrix/Co-occurrence Probability](#co-occurrence-matrixco-occurrence-probability)
     - [GloVe의 목적함수](#glove의-목적함수)
+    - [실제 구현에서의 주의점](#실제-구현에서의-주의점-1)
 - [Reference](#reference)
 
 
@@ -466,6 +467,21 @@ $$
 GloVe 방법은 co-occurrent matrix를 찾기 위해 matrix decomposition을 해야하므로 계산복잡성이 커지는 단점이 있다.   
   
 다만 성능이 좋은 편에 속하며, 특히 수많은 단어에 대한 임베딩 벡터가 공개되어있기 때문에 실제로 활용하기 간편하다는 장점이 있다. (물론 Word2Vec도 임베딩 벡터 셋이 공개되어있다고 한다)
+
+<br/>
+
+#### 실제 구현에서의 주의점
+앞서 input x로 one-hot encoding된 벡터가 들어간다고 설명했지만, 실제 PyTorch 구현에서는 <code>nn.Embedding</code> 객체를 사용하기 때문에 **정수 인덱스를 그대로 넣어주게 된다.**
+여기서 <code>nn.Embedding</code> 객체는 그저 lookup table의 역할을 한다. 
+쉽게 말하면, 정수 인덱스 하나를 x로 주면 그 인덱스에 맞는 벡터를 자신이 가지고 있는 가중치에서 반환(y)하는 함수 같은 역할을 하는 것이다.  
+  
+따라서 초기 parameter 값을 넣어주지 않은 채로 초기화된 embedding 객체는 parameter가 전부 random 값으로 초기화되어있고((0, 1) normal distribution 기반) 이후
+optim과 loss를 사용하여 embedding 객체 내의 파라미터들을 학습시키면 비로소 우리가 원하는, 관계성이 반영된 임베딩 벡터를 얻을 수 있다.
+
+
+또한 Embedding 객체에서는 embedding vector를 받아오고 싶을 때 input(정수 index)으로 LongTensor type을 기대하기 때문에 Embedding 모듈 사용시에 이에 주의하도록 하자. 
+(텐서는 그냥 생성하면 default로 FloatTensor가 생성되기 때문에 이러한 작업이 필요하다)
+
 
 <br/>
 
