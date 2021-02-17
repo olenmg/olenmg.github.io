@@ -108,9 +108,9 @@ $$
 
 attention 모듈의 내적을 하는 부분(scoring)에서 **단순한 내적 외에 다른 방법들을 사용해볼 수도 있다.**  
   
-우선 dot은 기존에 썼던 방법이고, general은 $h\_t$, $\bar{h}\_s$와 같은 row/column 길이를 가진 **정사각 행렬을 중간에 추가**하여 단순한 내적을 보다 일반화된 dot product로 표현한 방법이다. 이를 활용하면 필요에 따라 각 벡터 혹은 벡터가 서로 곱해지는 부분에 가중치를 부여할 수 있다는 장점이 있다.  
+우선 dot attention은 기존에 썼던 방법이고, general attention은 $h\_t$, $\bar{h}\_s$와 같은 row/column 길이를 가진 **정사각 행렬을 중간에 추가**하여 단순한 내적을 보다 일반화된 dot product로 표현한 방법이다. 이를 활용하면 필요에 따라 각 벡터 혹은 벡터가 서로 곱해지는 부분에 가중치를 부여할 수 있다는 장점이 있다. (둘 모두 Luong attention이라고도 불림)  
   
-concat의 경우 **$h\_t$와 $\bar{h}\_s$를 concat하여 일반적인 MLP 구조를 통과시킨다고 보면 된다.**
+concat attention(Bahdanau attention)의 경우 **$h\_t$와 $\bar{h}\_s$를 concat하여 일반적인 MLP 구조를 통과시킨다고 보면 된다.**
 2 layer짜리 MLP($W\_1$, $W\_2$)에서 input으로 concat된 벡터 $\left[ h\_t ; \bar{h}\_s \right]$가 들어가 linear layer 하나를 통과하게 된다.
 여기서 그 linear layer의 가중치 $W\_1$의 역할을 $W_a$이 하게 된다.
 linear layer를 통과하고 나온 출력은 다시 $\tanh$ 활성화 함수를 통과하여 $n$차원의 벡터가 출력으로 나오게 된다.
