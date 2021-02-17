@@ -60,7 +60,7 @@ Attention 구조는 Encoder의 모든 timestep에서의 hidden state vector를 �
   
 3. 그리고 나온 값에 softmax를 취해 이를 확률으로 변환하고 이를 통해 $h ^{(e)} \_1$, $h ^{(e)} \_2$, $h ^{(e)} \_3$, $h ^{(e)} \_4$의 가중평균(weight sum)을 구하면 그것이 attention module의 output이 된다.   
 
-4. 마지막으로 attention output(=context vector)과 $h ^{(d)} \_1$를 concat하여 output layer에 통과시키면 최종적으로 현재 단계의 output $\hat{y} \_2$가 나오게 된다.  
+4. 마지막으로 attention output(=context vector)과 $h ^{(d)} \_1$를 concat하여 output layer에 통과시키면 최종적으로 현재 단계의 output $\bar{y} \_2$가 나오게 된다.  
   
 5. 이 과정을 '\<EoS\>' 토큰이 나올 때까지 반복한다.
   
@@ -95,9 +95,9 @@ $$
 \text{score}(h_t, \bar{h}_s)=
 \begin{cases} 
 \begin{aligned}
-&h_t ^{\intercal} \hat{h} _s &dot\\ 
-&h_t ^{\intercal} W_a \hat{h} _s &general \\ 
-&v_a ^{\intercal} \tanh{\left( W_a \left[ h_t ; \hat{h}_s \right] \right)} &concat
+&h_t ^{\intercal} \bar{h} _s &dot\\ 
+&h_t ^{\intercal} W_a \bar{h} _s &general \\ 
+&v_a ^{\intercal} \tanh{\left( W_a \left[ h_t ; \bar{h}_s \right] \right)} &concat
 \end{aligned}
 \end{cases}
 $$
