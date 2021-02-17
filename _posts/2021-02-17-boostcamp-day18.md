@@ -85,6 +85,9 @@ Teacher forcing에서는 학습 단계에서 다음의 input으로 이미 알고
 **이전의 output이 잘못 나왔더라도 일단은 무시하고 원래 input으로 들어가야할 임베딩 벡터를 넣어주는 것이다.**
 이렇게 되면 학습이 빨라진다는 장점이 있다. 다만 반대로 학습 자체를 실제와 괴리가 있는 환경에서 하였기 때문에 추론의 성능이 떨어질 우려는 존재한다.  
 반대로 teacher forcing 없이, 우리가 원래 하던대로(이전 output -> 다음 input) 하면 학습은 느려질 수 있지만 실제 추론 성능이 좀 더 좋은 학습을 할 수 있다는 장점이 있다.  
+  
+**실제 구현에서는 teacher forcing을 초반에만 적용하다가 후반에는 빼는 방법, 혹은 probability를 주어 확률적으로 teacher forcing을 하는 방법 등으로** 
+**양 방법의 장점을 모두 취할 수 있도록 활용할 수도 있다.**
 
 <br />
 
@@ -117,7 +120,11 @@ linear layer를 통과하고 나온 출력은 다시 $\tanh$ 활성화 함수를
 이 $n$차원 벡터가 $W\_2$를 통과하여 최종적으로 1x1 (즉, scalar 값) 크기의 값을 도출하게 된다. 이 식에서 $v\_a ^{\intercal}$는 $W\_2$를 의미한다.
 행렬이 아니라 $v$라는 벡터 형태의 표기를 한 이유는, 어차피 최종적으로 크기 1짜리가 나와야하므로 $W\_2$의 shape이 $n \times 1$이기 때문이다.  
   
-일반적인 dot이 아닌 general이나 concat의 방법을 활용하게 되면 **각 방법에서 사용되는 가중치도 모델 학습시 같이 학습되므로**, 보다 의미있는 score 수치를 얻어낼 수 있다는 장점이 있다.
+실제 구현시 한가지 주의할 점은, Luong attention의 경우 먼저 input이 RNN(LSTM 등)을 통과한 후 나온 벡터(hidden state vector)가 context vector와 concat되어 output layer를 통과하는데,
+**Bahdanau attention에서는 이전 hidden state vector가 attention에 먼저 통과되고 이에 대한 output으로 나온 context vector를 input vector와 concat시켜 이를 RNN에 통과시킨다.** 
+순서의 차이가 있으므로 이에 주의하도록 하자.  
+  
+가장 단순한 모델인 dot attention이 아닌 general attention이나 concat attention의 방법을 활용하게 되면 **각 방법에서 사용되는 가중치도 모델 학습시 같이 학습되므로**, 보다 의미있는 score 수치를 얻어낼 수 있다는 장점이 있다.
 
 <br />
 
