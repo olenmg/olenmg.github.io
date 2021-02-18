@@ -24,7 +24,7 @@ use_math: true
     - [Encoder의 구조와 동작](#encoder의-구조와-동작)
     - [Multi-headed attention](#multi-headed-attention)
     - [Positional Encoding](#positional-encoding)
-    - [Normalize](#normalize)
+    - [Add & Normalize](#add--normalize)
     - [Decoder](#decoder)
 - [Reference](#reference)
 
@@ -490,12 +490,14 @@ encoder에 들어간 embedding vector는 위와 같이 self-attention층을 거�
 
 <br />
 
-#### Normalize
+#### Add & Normalize
 이 부분에 대해서는 자세히 다루지는 않았는데, 일단 이런 단계가 있다는 것만 알고 넘어가자.  
 ![normalize](/img/posts/14-27.png){: width="70%" height="70%"}{: .center}  
-ResNet의 skip connection과 비슷한 역할을 한다.    
+ResNet의 skip connection과 비슷한 역할을 한다. 
 <strong>역전파에 의해 positional encoding이 손실될 위험이 있어</strong> 위와 같은 처리를 한다.  
-이를 Layer Norm(Add & Normalize)라고 표현하였다.  
+  
+이를 Add라고 표현하였고, 이후 Layer Normalization을 수행한다. 
+Layer normalization에 대해서는 일단은 자세히 다루지 않겠다. :cry: 
 
 <br />
 
