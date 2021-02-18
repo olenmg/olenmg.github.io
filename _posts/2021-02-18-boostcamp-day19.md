@@ -2,7 +2,7 @@
 layout: post
 title: "Day19. Transformer"
 subtitle: "Transformer with Multi-Head Attention"
-date: 2021-02-18 14:16:12+0900
+date: 2021-02-18 20:51:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
