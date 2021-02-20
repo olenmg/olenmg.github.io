@@ -9,7 +9,7 @@ use_math: true
 
 ## 개요 <!-- omit in toc -->
 > Transformer의 self-attention 구조는 NLP분야를 비롯한 다양한 분야에 지대한 영향을 주었다. 높은 성능을 보이는 많은 모델들이 self-attention구조를 채택하게 되었는데,
-  오늘은 self-attention구조에 기반한 다양한 pre-training model에 대해 알아보도록 한다.  
+  이 포스트에서는 self-attention구조에 기반한 다양한 pre-training model에 대해 알아보도록 한다.  
   
 아래와 같은 순서로 작성하였다.  
 - [Recent Trends](#recent-trends)
