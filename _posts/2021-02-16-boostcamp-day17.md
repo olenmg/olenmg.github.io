@@ -80,7 +80,7 @@ RNN은 크게 보면 입출력이 어떤식으로 이루어지느냐에 따라 �
 - Many to Many (Sequence to Sequence) (2)
     + 이전과의 차이점은 똑같이 sequence to sequence 모델이지만, 실시간 처리를 수행한다.
       이전에는 input이 모두 들어온 이후 output이 출력되기 시작했다면 여기서는 input이 들어올때마다 output이 바로바로 도출된다. 
-    + i.e. 동영상의 매 scene의 내용을 맞추는 video classification(on frame level), POS tagging(품사 태깅) 등에 사용될 수 있다.
+    + i.e. 동영상의 매 scene의 내용을 맞히는 video classification(on frame level), POS tagging(품사 태깅) 등에 사용될 수 있다.
 
 <br />
 
