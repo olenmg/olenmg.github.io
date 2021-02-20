@@ -83,7 +83,10 @@ $$
 <center>
 
 $$
-P(X_1, \cdots, X_t) = P(X_{t} \vert X_{t-1})P(X_{t-1} \vert X_{t-2})\cdots P(X_{2} \vert X_{1})P(X_1) = \prod\limits _{t=1} ^T p(X_t \vert X_{t-1})
+\begin{aligned}
+P(X_1, \cdots, X_t) &= P(X_{t} \vert X_{t-1})P(X_{t-1} \vert X_{t-2})\cdots P(X_{2} \vert X_{1})P(X_1)  \\
+&= \prod\limits _{t=1} ^T p(X_t \vert X_{t-1})
+\end{aligned}
 $$
 
 </center>
@@ -215,8 +218,11 @@ $\cdots$
 <center>
 
 $$
-\partial _{w_h} h_t = \partial _{w_h} f(x_t, h_{t-1}, w_h) + \sum\limits _{i=1} ^{t-1} \left( \prod\limits _{j=i+1} ^{t} \partial _{h _{j-1}} f(x_j, h_{j-1}, w_h) \right)
+\begin{aligned}
+\partial _{w_h} h_t &= \partial _{w_h} f(x_t, h_{t-1}, w_h) \\
+& \quad \quad + \sum\limits _{i=1} ^{t-1} \left( \prod\limits _{j=i+1} ^{t} \partial _{h _{j-1}} f(x_j, h_{j-1}, w_h) \right)
 \partial _{w_h} f(x_i, h_{i-1}, w_h)
+\end{aligned}
 $$
 
 </center>
