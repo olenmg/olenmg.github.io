@@ -91,7 +91,9 @@ use_math: true
   좋은 논문 [On Large-batch Training for Deep Learning: Generalization Gap and Sharp Minima, 2017](https://openreview.net/pdf?id=H1oyRlYgg)이 있으니 추후 보도록 하자.
   </span> batch size가 너무 크면 sharp minimzer에 모이게 되어 안 좋으므로 웬만하면 flat minimizer에 도달할 수 있는 small-batch를 사용해야한다는 점, 그리고 배치사이즈가 클 때의
   최적화는 어떻게 하면 좋은지 등의 문제에 대해 다루고 있다고 한다.  
-- 일단은 small-batch가 train과 test 간의 갭을 줄여주어 generalization에 더 유리하다는 점을 이해하고 넘어가도록 하자.
+- 일단은 small-batch가 train과 test 간의 갭을 줄여주어 generalization에 더 유리하다는 점을 이해하고 넘어가도록 하자.  
+- 그런데 실제로는 배치 사이즈를 키우는 방향으로 학습을 시키는 경우가 많다. 그 이유에 대해 <span class="link_button">[이 글](https://bit.ly/3azzXva)</span>에 자세히
+  설명되어있다. 간단히 요약해보자면, 논문에서 소개하는 방향은 우리가 생각하는 배치사이즈보다 훨씬 큰(512 이상) 배치 사이즈에 대하여 다루고 있기 때문에 우리가 실제 학습시킬 때 사용하는 배치사이즈는 아무리 키워봤자 메모리 제한 때문에 일정 수준을 넘길 수 없으므로 generalization 성능에 큰 영향을 미치지 않는다는 것이다.
 
 <br/>
 
@@ -479,7 +481,8 @@ $$
 ## Reference  
 [부트스트랩](https://bit.ly/3oCLMV3)   
 [Batch Size in Deep Learning](https://blog.lunit.io/2018/08/03/batch-size-in-deep-learning/)  
+[SGD에서 배치 사이즈가 학습과 성능에 미치는 영향](https://bit.ly/3azzXva)  
 [Optimizer](https://ruder.io/optimizing-gradient-descent/index.html#rmsprop)  
 [Optimizer2](http://shuuki4.github.io/deep%20learning/2016/05/20/Gradient-Descent-Algorithm-Overview.html)  
 [Adam Optimizer](https://hiddenbeginner.github.io/deeplearning/2019/09/22/optimization_algorithms_in_deep_learning.html#Adam)  
-[Batch Normalization](https://eehoeskrap.tistory.com/430)  
+[Batch Normalization](https://eehoeskrap.tistory.com/430)   
