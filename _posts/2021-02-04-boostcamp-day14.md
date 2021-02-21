@@ -197,7 +197,7 @@ $$
 나머지는 그냥 계산하면 되는데, 중요한건 맨 뒤에 대괄호로 씌워져 붙어있는 $\dfrac{\partial h\_t}{\partial w\_h}$ $\left(=\partial _{w_h} h_t \right)$이다.   
   
 $h_t$에는 $t$시점 이전의 모든 과거 데이터의 값이 쌓여있다. 
-그래서 사실 <strong>RNN의 각 시점을 input이 수없이 많은 FC layer(서로 parameter를 share하는)로 바꾸어 나타낼수도 있긴 하다.</strong>   
+그래서 사실 <strong>RNN의 각 시점을 input이 수없이 많은 affine layer(서로 parameter를 share하는)로 바꾸어 나타낼수도 있긴 하다.</strong>   
   
 아무튼 하고자 하는 말은, 각 $h_t$는 $t$이전 모든 시점의 잠재변수의 값에 영향을 받고 있고, 심지어 $w_h$에도 영향을 받고 있다. 그래서 $h_t$를 미분하려고 하면 아래와 같게된다.  
 
@@ -520,7 +520,7 @@ Layer normalization에 대해서는 일단은 자세히 다루지 않겠다. :cr
 - 디코더에서도 multi-headed attention과 positional encoding을 사용한다. 
 
 ![final_layer](/img/posts/14-28.png){: width="70%" height="70%"}{: .center}  
-- 최종 레이어에서는 decoder의 출력 벡터를 학습한 단어의 갯수만큼의 차원으로 linear mapping 후(FC layer) softmax를 통해 최종 출력 단어를 예측한다.
+- 최종 레이어에서는 decoder의 출력 벡터를 학습한 단어의 갯수만큼의 차원으로 linear mapping 후(affine layer) softmax를 통해 최종 출력 단어를 예측한다.
 - 다만 여기서는 one-hot encoding을 사용하지 않고 label smoothing을 사용한다. (정답에만 치중하여 학습되는 것을 방지)
     + 비슷한 확률을 가진 서로 다른 두 후보에 대하여 한쪽에 편향되는 학습을 방지한다.
 

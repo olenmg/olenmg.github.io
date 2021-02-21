@@ -171,9 +171,9 @@ AR model에는 아래와 같은 모델이 존재한다.
     </center>
     - 위 식을 말로 표현해보자.
         1. $i$번째 conditional probability를 구하고자 한다.
-        2. $1 \sim i - 1$번째 값을 FC layer에 통과시킨 값을 시그모이드에 통과시켜 $\mathrm{h}_i$를 얻는다.
+        2. $1 \sim i - 1$번째 값을 affine layer에 통과시킨 값을 시그모이드에 통과시켜 $\mathrm{h}_i$를 얻는다.
         3. 그 값을 다시 어떤 값 $\alpha$에 곱해서 시그모이드를 한번 더 통과시킨 값이 확률이 된다.
-    - $1 \sim i - 1$번째 확률을 다 고려한다는 점, 그리고 input이 아래로 갈수록 늘어나니까 FC layer에서 곱해주는 가중치의 dimension도 올라간다는 점 정도를 생각해보면 될 것 같다.
+    - $1 \sim i - 1$번째 확률을 다 고려한다는 점, 그리고 input이 아래로 갈수록 늘어나니까 affine layer에서 곱해주는 가중치의 dimension도 올라간다는 점 정도를 생각해보면 될 것 같다.
         + 예를 들어 $x_{58}$에 대한 확률을 구하려고 하면 57개의 input을 받을 수 있는 가중치 $W$가 필요할 것이다.
     - NADE는 explicit 모델로, 784개 입력에 대한 확률 계산이 가능하다.
         <center>
@@ -606,7 +606,7 @@ $$
 - DCGAN
     ![DCGAN](/img/posts/15-8.png){: width="90%" height="90%"}{: .center}  
     + CNN을 활용한 GAN 모델이다.
-    + 기존 GAN에서는 FC layer를 사용한 반면, DCGAN은 Convolution layer를 사용하며, Generator는 Deconvolution을 사용한다.
+    + 기존 GAN에서는 affine layer를 사용한 반면, DCGAN은 Convolution layer를 사용하며, Generator는 Deconvolution을 사용한다.
     + DCGAN에서는 이미지가 블럭화되는 현상을 막기 위해 pooling layer를 사용하지 않고 stride size가 2이상인 convolution/deconvolution을 사용한다.
     + 학습 안정을 위해 batch normalization / Adam optimzer을 사용한다.
 

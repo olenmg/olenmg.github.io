@@ -45,12 +45,12 @@ output의 채널은 커널의 갯수만큼 나오게 된다.
 
 #### 고전적인 CNN
 ![example_cnn](/img/posts/13-2.png){: width="90%" height="90%"}{: .center}    
-위 그림은 가장 고전적, 기본적 CNN 구조이다. convolution/pooling layer들에서는 feature extraction(특징 추출), FC layer(fully connected layer)들에서는 결정(decision making)을 한다. 
-convolution, pooling을 여러번 반복하고 뒤에서는 우리가 전에 다루었던 FC layer(MLP)가 나오게 된다. 
+위 그림은 가장 고전적, 기본적 CNN 구조이다. convolution/pooling layer들에서는 feature extraction(특징 추출), affine layer들에서는 결정(decision making)을 한다. 
+convolution, pooling을 여러번 반복하고 뒤에서는 우리가 전에 다루었던 affine layer(MLP)가 나오게 된다. 
 parameter수가 많을수록 학습이 어렵고 generalization performance가 떨어지기 때문에 <strong>parameter수를 줄일 방법에 대해 연구가 필요하다.</strong>   
   
-최우선적으로, 많은 parameter가 FC layer 부분에 존재하기 때문에 FC layer를 최대한 줄이는 것이 좋다.  
-실제로 요즘은 CNN에서 FC layer를 줄이고, convolutional layer를 많이 가져가는 방향으로 발전하고 있다.
+최우선적으로, 많은 parameter가 affine layer 부분에 존재하기 때문에 affine layer의 수를 최대한 줄이는 것이 좋다.  
+실제로 요즘은 CNN에서 affine layer를 줄이고, convolutional layer를 많이 가져가는 방향으로 발전하고 있다.
   
 parameter 갯수는 CNN의 중요한 평가지표 중 하나이므로 <strong>어떤 모델을 보았을 때 해당 모델의 파라미터가 대충 몇개일 지 가늠할 수 있는 감을 키우는게 중요하다.</strong>
 
@@ -74,25 +74,25 @@ $k$가 커널의 사이즈이고 홀수일 때, input과 output의 크기가 같
 위 그림은 AlexNet에서 각 레이어별로 parameter수를 구해놓은 예시이다.    
 AlexNet이 나올 당시 GPU의 성능이 부족했기 때문에 분기를 2개로 나눠놓았지만, 결국 계산은 같다.
 
-간단하게 몇개만 구해보자. FC layer는 fully connected layer로, dense layer 즉 우리가 전에 썼던 고전적인 MLP 구조의 신경망을 뜻한다. 
+간단하게 몇개만 구해보자. affine layer는 fully connected layer로, dense layer 즉 우리가 전에 썼던 고전적인 MLP 구조의 신경망을 뜻한다. 
 - 1th convolution
     + 커널의 사이즈가 11 x 11이고 채널은 3이다. <strong>(보통 커널의 채널수는 input의 채널과 같아야하므로 생략하는 경우가 많다.)</strong>
     + output의 채널이 48이므로 커널의 갯수도 48이어야하며, 분기가 2개로 갈라지므로 이를 2번 카운팅해야한다.
     + 따라서 여기서의 총 parameter수는 $11 \times 11 \times 3 \times 48 \times 2 = 34848$
-    + FC layer와 다르게, 여기서의 parameter수는 input의 size에 의존적이지 않다는 점을 다시 한번 짚고 넘어가자. (224와 아무 관련이 없다)
+    + affine layer와 다르게, 여기서의 parameter수는 input의 size에 의존적이지 않다는 점을 다시 한번 짚고 넘어가자. (224와 아무 관련이 없다)
 - 3th convolution
     + 다른 곳들과 다르게 여기서는 interchange가 일어나므로 $\times 2$가 아니라 $\times 4$를 해줘야한다.
     + 따라서 계산해보면 $3\times3\times128\times192\times4 = 884736$
-- 1th FC layer(6th layer, fully connected)
+- 1th affine layer(6th layer, fully connected)
     + 기존과 같이 parameter가 input, output 모두의 size에 의존적이다.
-    + 여기서는 생략되었지만, convolutional layer의 output을 FC layer에 input으로 넣어주기 위해 flatten(쫙 펴주는) 작업도 필요하다.
+    + 여기서는 생략되었지만, convolutional layer의 output을 affine layer에 input으로 넣어주기 위해 flatten(쫙 펴주는) 작업도 필요하다.
     + $13\times13\times128$개의 parameter 2세트가 input으로 들어가 2048개의 output 2세트가 나온다.
     + 계산해보면 $13 \times 13 \times 128 \times 2 \times 2048 \times 2 = 177209344$
-- 3th FC layer(8th layer, fully connected)
+- 3th affine layer(8th layer, fully connected)
     + 동일한 방법으로 $2048 \times 2 \times 1000 = 4096000$개의 parameter가 나오게 된다.
   
 
-딱 봐도 FC layer에서 parameter 갯수가 월등히 많다.  
+딱 봐도 affine layer에서 parameter 갯수가 월등히 많다.  
 convolutional layer에서는 커널의 크기가 input 크기와 독립적이기 때문에 parameter가 상대적으로 덜필요하다.  
 
 <br />
@@ -208,11 +208,11 @@ channel 수를 줄이고 convolution을 수행하는 것이 필요한 parameter�
 semantic segmentation(dense classification)은 위와 같이 이미지를 픽셀 단위로 분류하는 것을 말한다. 흔히 아는 자율 주행에도 이 기술이 들어가게 된다.  
 이를 구현하기 위해 Fully Convolutional Network(FCN)을 도입하게 된다.  
 - Fully Convolutional Network(FCN)
-    + 본래 고전 CNN 구조는 맨 뒤에서 FC layer가 들어가게 되면서 후반부에는 output이 flatten되어 각 output의 위치정보가 소실되는 단점이 있었다. 
+    + 본래 고전 CNN 구조는 맨 뒤에서 affine layer가 들어가게 되면서 후반부에는 output이 flatten되어 각 output의 위치정보가 소실되는 단점이 있었다. 
     ![FCN](/img/posts/13-15.png){: width="80%" height="80%"}{: .center}   
-    + FCN에서는 FC layer 대신 <strong>1 x 1 kernel을 가진 convolutional layer를 넣어줌으로써 결과적으로 output의 위치정보를 유지할 수 있다.</strong> 
+    + FCN에서는 affine layer 대신 <strong>1 x 1 kernel을 가진 convolutional layer를 넣어줌으로써 결과적으로 output의 위치정보를 유지할 수 있다.</strong> 
     ![fcn_example](/img/posts/13-16.png){: width="90%" height="00%"}{: .center}
-    + 그리고 위치정보를 남길뿐만아니라, input의 size도 자유로워졌다. 본래 FC layer는 input 크기가 딱딱 맞춰들어와야했는데,
+    + 그리고 위치정보를 남길뿐만아니라, input의 size도 자유로워졌다. 본래 affine layer는 input 크기가 딱딱 맞춰들어와야했는데,
       convolution 연산에서는 거듭 말하지만 커널의 사이즈가 input size와 독립적이기 때문에 어느 입력이든 받아들일 수 있다. 물론, input이 커지면 output도 커지고, input이 작아지면 output도 작아진다. (여기서 말하는 사이즈는 모두 spatial dimension 기준이다)
     + 다만 convolution을 거치면 보통 output의 spatial dimension은 줄어들게된다. 따라서 원본이미지와 크기가 같도록 늘려줄 필요성이 있다. 
     + 이를 위해 upsampling(확장), deconvolution(역합성곱)을 해주게되는데, 사실 엄밀히 말하면 convolution의 역연산은 존재할 수 없지만, 맥락이 통하므로 이러한 용어를 사용한다.  
@@ -244,7 +244,7 @@ Detection은 픽셀 단위가 아니라, bounding box를 찾는 기법이다. �
         1. Selective search로 regional proposal 추출
         2. CNN을 돌려 feature map을 얻어옴(SPPNet과 여기까지 동일)
         3. 각 region마다 pooling을 진행하며 고정된 크기의 feature vector를 가져옴
-        4. feature vector를 FC layer을 통과시켜 두 output(class, bounding box regressor)을 얻는다.
+        4. feature vector를 affine layer에 통과시켜 두 output(class, bounding box regressor)을 얻는다.
         5. class는 softmax를 통과시켜 분류를 적용하고, bounding box는 bounding box regression을 통해 box의 위치를 조정함으로써 얻는다.
     + 위 과정도 상당히 요약되어있는데, 나중에 자세히 알아보자.
  
