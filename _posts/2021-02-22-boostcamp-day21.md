@@ -2,7 +2,7 @@
 layout: post
 title: "Day21. 그래프 이론, 패턴"
 subtitle: "그래프, 작은 세상 효과, 연결성, 군집 계수, NetworkX"
-date: 2021-02-22 15:13:12+0900
+date: 2021-02-22 20:35:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
@@ -21,6 +21,7 @@ use_math: true
     - [연결성의 두터운 꼬리분포](#연결성의-두터운-꼬리분포)
     - [군집 구조](#군집-구조)
     - [거대 연결 요소](#거대-연결-요소)
+    - [랜덤 그래프의 수학적 해석](#랜덤-그래프의-수학적-해석)
     - [그래프 별 군집 계수 및 지름 분석](#그래프-별-군집-계수-및-지름-분석)
 - [그래프 구현을 위한 파이썬 라이브러리](#그래프-구현을-위한-파이썬-라이브러리)
 - [Reference](#reference)
@@ -170,10 +171,201 @@ use_math: true
 그러나 이 때 **정점들의 평균 연결성이 1보다 충분히 커야한다.**  
 ![giant_connected_component](/img/posts/21-4.png){: width="80%" height="80%"}{: .center}   
    
-왜 그런 것인지 수학적으로 상세하게 뜯어보도록 하자.  
+<br />
 
-**작성중**
+#### 랜덤 그래프의 수학적 해석
+랜덤 그래프에서 각 요소는 어떤 확률 분포를 가지고 생성될까?
+여기서는 우선 edge 갯수의 분포 및 degree의 분포를 알아낸 후 이를 통해 local clustering coefficient의 분포를 알아낼 것이다.
+그리고 이 과정에서 마지막으로 **왜 정점들의 평균 연결성이 1보다 충분히 커야만 랜덤 그래프에 거대 연결 요소가 존재할 수 있는지에 대해 알아보도록 한다.**   
+  
+먼저 랜덤 그래프 $G(n, p)$에 대하여 $m$개의 edge를 가지는 임의의 network $G(n, m)$의 확률 분포를 알아보자. 이는 아래와 같이 나타낼 수 있다.
 
+<center>
+
+$$
+P(G) = p^m (1 - p)^{ {n \choose 2} - m}
+$$
+
+</center>
+
+글씨가 작아서 헷갈릴 수 있는데, 지수에 있는 항은 $\frac{n}{2}$가 아니고 ${n \choose 2}$ 임에 주의하자. :sweat:  
+  
+이제 그럼 $n$과 무관하게 $m$개의 edge를 가지는 임의의 그래프 $G(m)$이 생성될 확률 분포 $P(m)$을 구해보자. 
+이는 간단하게 vertex쌍(총 ${n \choose 2}$개)들 중 $m$개를 고르는 확률을 구하면 알 수 있다.  
+
+<center>
+
+$$
+P(m) = { {n \choose 2}  \choose m} p^m (1-p)^{ {n \choose 2} - m}
+$$
+
+</center>
+
+이제 확률변수 $m$의 확률 분포를 알았다. 그런데 마침 이 확률 분포가 $n = {n \choose m}$이고 $k = m$인 **binomial distribution**이다.
+따라서 $m$의 기댓값은 아래와 같이 계산할 수 있다.
+
+<center>
+
+$$
+E(m) = \bar{m} = \sum_m mP(m) = \sum_{m=0} ^{ {n \choose 2}} mP(m) = {n \choose 2} p
+$$
+
+</center>
+
+> 이항분포 $B(n, p)$의 기댓값은 $np$이다.  
+  
+즉, **어떤 그래프의 간선의 갯수는 평균 $np$개**이다.  
+  
+그러면 이제 degree의 기댓값을 구해보자. 이를 위해 degree $k$의 확률분포를 구해야한다. 
+그런데 degree는 한 vertex가 가지는 edge의 평균 갯수이다. 
+edge가 $m$개이고 vertex가 $n$개인 그래프에서 한 vertex의 degree의 기댓값은 $\frac{2m}{n}$이므로
+이를 적용하면 그 값은 아래와 같다.  
+  
+<center>
+
+$$
+\bar{k} = E \left(\frac{2m}{n} \right) = \frac{2}{n} \times E(m) = \frac{2}{n} \times {n \choose 2} p = (n-1)p
+$$
+
+</center>
+  
+따라서 랜덤 그래프에서 한 vertex의 평균 degree $c = (n-1)p$이다.  
+  
+지금까지 구한 것은 degree의 기댓값인데, 이제 degree의 확률 분포를 구해보도록 하자.  
+  
+임의의 vertex가 $k$개의 vertex와 연결되어있을(즉 해당 vertex의 degree가 $k$일) 확률을 구하면 아래와 같다.
+
+<center>
+
+$$
+p_k = { n-1 \choose k } p^k (1-p)^{n-1-k}
+$$
+
+</center>
+
+> $k$개의 vertex와 연결되어있고 나머지 $n - 1 - k$개의 vertex와는 연결되지 않을 확률이다.   
+ 
+   
+이 식 역시 binomial distribution으로 $G(n, p)$의 degree distribution은 binomial distribution임을 알 수 있다.  
+  
+하지만 이 식을 지금부터 몇 가지의 근사식을 통해 보다 간단한 식으로 표현할 것이다. 
+우리는 $n$이 충분히 큰 network에 관심이 있으므로 **$n$이 크다는 가정 하에(정확히는 $n$이 $k$보다 훨씬 크다는 가정 하에)** 두 가지 식을 근사할 것이다.  
+  
+먼저 ${ n-1 \choose k }$항을 보자. $n$이 충분히 크면 ${(n-1)! \over (n-1-k)!} \approx (n-1)^k$ 이므로
+
+<center>
+
+
+$$
+{n-1 \choose k} = \frac{(n-1)!}{(n-1-k)! k!} \approx {(n-1)^k \over k!}
+$$
+
+</center>  
+  
+    
+다음으로 $(1-p)^{n-1-k}$항을 보자. 
+$p = \frac{c}{n - 1}$이므로
+주어진 식에 $\log$를 취하고 근사하면 아래와 같다.
+
+<center>
+
+$$
+\begin{aligned}
+\log[(1-p)^{n-1-k}] & = (n-1-k) \log ( 1- \frac {c} {n-1})  \\
+&\approx -(n-1-k) { c \over n-1}  \\
+&\approx -c
+\end{aligned}
+$$
+
+
+</center>
+
+첫번째 근사식은 $\vert x \vert < 1$일 때 taylor expansion에 의해 
+
+<center>
+
+$$
+\ln(1 + x) = x - {x^2 \over 2} + {x^3 \over 3} - \cdots \approx x
+$$
+
+</center>
+
+임을 이용한 근사식이다. $n$이 매우 크므로 $x$의 값이 매우 작아 일차항만 남겼다. 
+결과적으로 $(1-p)^{n-1-k} \approx e^{-c}$임을 알았다.  
+    
+이제 두 근사 결과를 종합하면 아래와 같다.
+
+<center>
+
+$$
+p_k \approx {(n-1)^k \over k!} p^k e^{-c} ={ (n-1)^k \over k!} ({c \over n-1})^k e^{-c} = e^{-c} {c^k \over k!}
+$$
+
+</center>
+
+이 형태는 모수 $\lambda = c$인 **Poisson distribution**을 나타내며, $n$이 매우 큰 경우 $G(n, p)$의 degree distribution이 Poisson distribution임을 알 수 있다. 
+한편, 앞서 보았듯이 degree의 확률분포는 동시에 **binomial distribution(Bernoulli distribution)**을 만족하기도 한다.   
+  
+이제 마지막으로 **랜덤 그래프에 거대 연결 요소가 존재할 조건**을 구해보자. 
+거대 연결 요소에 포함되는 vertex의 수를 $n_{gc}$라고 하면 임의의 vertex가 giant component에 포함될 확률은 ${n_{gc} \over n}$, 반대로 포함되지 않을 확률 $u=1-{n\_{gc} \over n}$임을 쉽게 알 수 있다. 따라서 $n\_{gc} = n(1-u)$이다.  
+  
+이제 $u$를 이용하여 거대 연결 요소를 분석할 수 있다. 
+임의의 vertex $i$와 $j$가 존재한다고 하자. 그리고 $i$는 반드시 $j$를 거쳐 거대 연결 요소에 연결될 수 있다고 하자.    
+   
+이 때 vertex $i$가 거대 연결 요소에 **포함되지 않을** 확률은 **(1) $i$와 $j$가 연결되지 않을 확률**과 **(2) $i$와 $j$가 연결되어있으나 $j$가 거대 연결 요소에 포함되지 않을 확률**의 합이다. 그 외 다른 경우는 존재하지 않는다.  
+  
+먼저 (1)의 확률은 단순히 $1-p$이다. 단순히 두 vertex가 연결되지 않을 확률이기 때문이다.
+(2)의 확률도 간단하게 구할 수 있는데, 이는 $i$와 $j$가 연결될 확률 $p$에 $j$가 거대 연결 요소에 포함되지 않을 확률 $u$의 곱이므로 $pu$이다.
+따라서 $i$가 거대 연결 요소에 포함되지 않을 확률은 이 둘의 합인 $1-p+pu$이다.  
+  
+$i$가 정말 거대 연결 요소에 포함되지 않으려면 총 $n-1$개의 vertex에 대하여 모두 위 관계가 성립해야하므로
+그 확률은 ${(1-p+pu)}^{n-1}$이다. 그런데 이 값은 의미상 결국 $u$와 같다. 그러므로
+
+<center>
+
+$$
+u = {(1-p+pu)}^{n-1}, \quad p=\frac{c}{n-1}
+$$
+
+<br />
+
+$$
+\begin{aligned}
+\log u&= (n-1) \log {\left(1-{c \over n-1} (1-u) \right)}  \\
+&\approx -(n-1) {c \over n-1} (1-u) \\
+&= -c (1-u)
+\end{aligned}
+$$
+
+</center>
+
+따라서 $u=e^{-c(1-u)}$이다.  
+  
+이 때 거대 연결 요소에 들어있는 vertex의 개수의 비율을 $S$라고 하면
+$S = 1 - u = {n\_{gc} \over n}$이므로 그 값은 아래와 같다.
+
+<center>
+
+$$
+S = 1 - e^{-c(1-u)} = 1 - e^{-cS}
+$$
+
+</center>
+
+이 식에 따라 우리는 **$S$가 $c$에 dependent하다는 것**을 알 수 있다.  
+  
+한편, 위 식에는 $S$가 좌변 및 우변에 모두 포함되어있다. 이를 풀기 위해 $y=S$ 그래프와 $y=1-e^{cS}$ 그래프의 교점을 구할 수 있고
+이 그래프에서 **0이 아닌 교점은 $c$가 1 이상일 때 나타나게 된다.**  
+  
+![giant_connected_component_2](/img/posts/21-6.png){: width="50%" height="50%"}{: .center}   
+> Reference(Network Science - Random Network (Erdös-Rényi Network))에서 발췌  
+  
+좌측 그래프를 보면 $S$와 $y$에 대한 좌표축에서 $c$가 1 이상일 때부터 두 그래프간 0이 아닌 교점이 발생한다. 
+그리고 그 값이 커질수록 교점의 $S$ 좌표가 커진다. 이에 따라 오른쪽과 같은 그래프가 나타나게 되고, 이를 통해
+degree의 기댓값이 1보다 충분히 커야만 거대 연결 요소가 존재할 수 있다는 사실을 알 수 있다.  
+  
+한편, 이 그래프에 따르면, $S$는 거대 연결 요소에 포함된 vertex의 비율이므로 $c$가 클수록 거대 연결 요소의 크기가 커지게 된다는 것 역시 알 수 있다.
+  
 <br />
 
 #### 그래프 별 군집 계수 및 지름 분석  
