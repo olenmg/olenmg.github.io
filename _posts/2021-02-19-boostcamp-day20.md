@@ -166,7 +166,7 @@ concat한 벡터가 BERT를 통과하여 나온 encoding CLS token을 linear lay
 
 ## GPT-2/GPT-3
 GPT-2, GPT-3는 GPT-1에 이어 OpenAI에서 발표한 GPT-n 시리즈의 후속 모델로, 사용하는 도구 면에서는 크게 달라진 것이 없다. 
-다만 가장 중요한 특징은 **trnasformer layer의 크기를 더욱 늘렸다는 것**이다. 
+다만 가장 중요한 특징은 **transformer layer의 크기를 더욱 늘렸다는 것**이다. 
 근데 당연히 추가적인 변화가 조금 있긴 한데, 지금부터는 그것에 대해 알아보도록 하자.
 
 <br />
