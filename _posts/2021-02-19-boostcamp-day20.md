@@ -183,16 +183,18 @@ Dataset으로는 BPE(Byte Pair Encoding) token을 사용하였고 Reddit에서 u
     
 모델의 측면에서는 앞서 말했듯이 절대적인 레이어의 양을 늘렸다. 
 또한 layer normalization의 위치가 변경된 부분이 있고, 위쪽(깊은) 레이어일수록 weight parameter를 작게($\frac{1}{\sqrt{n}}$ 배, $n$은 residual layer의 수)
-하여 위쪽에 있는 레이어의 역할이 줄어들 수 있도록 구성되었다. 
+하여 위쪽에 있는 레이어의 역할이 줄어들 수 있도록 구성되었다.  
+  
 이 부분을 좀 더 자세히 들여다보면 결국 scaling은 분산을 강제로 조절해주기 위해 사용된다.
-모델 내에서 모든 계산은 곱셈과 덧셈이 반복되는 구조로 이루어져있고, 결국 위와 같은 과정을 거치지 않으면 최종 결과값으로
-exploding 혹은 vanishing된 값이 나올 우려가 있다. 
+모델 내에서 모든 계산은 곱셈과 덧셈이 반복되는 구조로 이루어져있고, 
+residual layer를 거칠수록 input이 뒤에 더해지면서 exploding, vanishing이 일어날 우려가 있다. 
+그래서 애초에 residual layer의 weight을 scaling해줌으로써 위와 같은 일이 벌어지지 않도록 막아주는 것 같다.  
     
-pre-training 모델만으로 CoQA(conversation question answering)에서 55정도의 F1 score를 **라벨링된 데이터 없이 내놓았다.** 
+GPT-2는 pre-training 모델만으로 CoQA(conversation question answering)에서 55정도의 F1 score를 **라벨링된 데이터 없이 내놓았다.** 
 BERT가 같은 데이터에 대하여 89라는 높은 F1 score를 내놓았지만, 55라는 score에서도 어느정도 가능성을 엿볼 수 있다.  
     
-GPT-2 모델이 놀라웠던 점은, 어떤 이야기 문단을 주고 모델에게 이어서 이야기를 써보라고 하였을 때 모델이 사람이 쓴 것 같은(말도 안되는 헛소리지만) 글을 써낸다는 것이었다.
-심지어 이것이 down-stream task 기반 finetuning이 되지 않은 모델이 내놓은 성과인데 이로 인해 많은 윤리적 문제가 우려되기도 했다.
+더욱 놀라웠던 점은, 어떤 이야기 문단을 주고 모델에게 이어서 이야기를 써보라고 하였을 때 모델이 사람이 쓴 것 같은 (말도 안되는 헛소리지만)글을 써낸다는 것이었다.
+심지어 이것이 down-stream task 기반 finetuning이 되지 않은 모델이 내놓은 성과인데 이로 인해 이때부터 언어 생성 모델에 대하여 많은 윤리적 문제가 우려되기도 했다.
 
 <br />
 
