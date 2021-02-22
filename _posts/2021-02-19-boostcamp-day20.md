@@ -62,7 +62,7 @@ GPT-1(Generative Pre-training)에서는 \<S\>, \<E\>, \$ 등의 다양한 specia
 먼저 앞서 언급한 special token에 대해 알아보면, 기존처럼 문장의 시작에는 Start token을 넣어주고 위 그림에서는 문장의 끝에 **Extract 토큰**을 넣어주었다. 
 여기서 이 Extract token은 EoS의 기능 뿐만 아니라 **우리가 원하는 down-stream task의 query벡터로 활용**된다.  
   
-에를 들어 사진의 첫번째 task인 classification 문제를 푼다고 하면, transformer 구조의 마지막 output으로 나온 extract token을 별도의 linear layer에 통과시켜 분류를 수행한다.  
+예를 들어 사진의 첫번째 task인 classification 문제를 푼다고 하면, transformer 구조의 마지막 output으로 나온 extract token을 별도의 linear layer에 통과시켜 분류를 수행한다.  
   
 두번째 task인 entailment에는 Delim(delimiter) token이 활용되는데, 이것은 서로 다른 두 문장을 이어주는 역할을 한다. 
 두 문장을 각각 넣지 않고 Delim 토큰을 활용해 한꺼번에 넣어 두 문장의 논리적 관계(참/거짓)을 파악한다. 이것 역시도 마지막 Extract token을 finetuning된 linear layer에 통과시켜 정답을 얻을 수 있다.  
@@ -183,8 +183,11 @@ Dataset으로는 BPE(Byte Pair Encoding) token을 사용하였고 Reddit에서 u
     
 모델의 측면에서는 앞서 말했듯이 절대적인 레이어의 양을 늘렸다. 
 또한 layer normalization의 위치가 변경된 부분이 있고, 위쪽(깊은) 레이어일수록 weight parameter를 작게($\frac{1}{\sqrt{n}}$ 배, $n$은 residual layer의 수)
-하여 위쪽에 있는 레이어의 역할이 줄어들 수 있도록 구성되었다.  
-  
+하여 위쪽에 있는 레이어의 역할이 줄어들 수 있도록 구성되었다. 
+이 부분을 좀 더 자세히 들여다보면 결국 scaling은 분산을 강제로 조절해주기 위해 사용된다.
+모델 내에서 모든 계산은 곱셈과 덧셈이 반복되는 구조로 이루어져있고, 결국 위와 같은 과정을 거치지 않으면 최종 결과값으로
+exploding 혹은 vanishing된 값이 나올 우려가 있다. 
+    
 pre-training 모델만으로 CoQA(conversation question answering)에서 55정도의 F1 score를 **라벨링된 데이터 없이 내놓았다.** 
 BERT가 같은 데이터에 대하여 89라는 높은 F1 score를 내놓았지만, 55라는 score에서도 어느정도 가능성을 엿볼 수 있다.  
     
@@ -199,7 +202,7 @@ GPT-3에서는 GPT-2에서보다도 모델의 규모를 늘렸다. 약 1750억�
   
 또한 few-shot setting으로 별도의 학습 없이 소량의 test data로도 원하는 답을 내놓을 수 있게 되었다.  
   
-![few-shot](/img/posts/20-6.png){: width="80%" height="80%"}{: .center}   
+![few-shot](/img/posts/20-6.png){: width="100%" height="100%"}{: .center}   
 위 그림과 같이 fine-tuning 없이 inference 과정에서 예시만을 주면 모델이 적절한 답을 내놓을 수 있게 되는 것이다.
 한편, zero-shot, one-shot, few-shot 등 여기에도 줄 데이터의 수를 조절하면서 줘볼 수 있는데 아래 그래프와 같이 few-shot에서 parameter 수가 늘어날수록 더 높은 폭의 성능 향상을 보여주었다.  
     
@@ -222,7 +225,7 @@ pre-training 모델은 모델 사이즈가 커지면 계속해서 성능이 더�
 residual connection의 문제는 multihead attention 사용시 output과 input의 dimension이 같아야하기 때문에 
 **처음에 input을 통과시키는 embedding layer의 거대한 parameter를 학습시키기 위한 비용이 너무 많이 든다는 것이다.**  
   
-이 기법은 **word 자체에 대한 정보를 담기 위해 실제로는 많은 차원이 필요하지 않다는 것이 주요 아이디어이다.**
+이 기법은 그러한 parameter를 최대한 줄이기 위해 도입되었으며, **word 자체에 대한 정보를 담기 위해 실제로는 많은 차원이 필요하지 않다는 아이디어에서 출발한다.**
 단어를 BERT에 넣어주면 그 결과로 나오는 output은 context-dependent, 즉 단어 그 자체뿐 아니라 문맥에 관한 정보까지 담겨진 벡터가 나오게 된다.
 하지만 문맥에 대한 정보가 필요없는, 즉 context-independent한 부분인 input단에서는 단어를 표현하기 위해 그렇게까지 큰 차원이 필요하지 않다.  
   
@@ -249,7 +252,7 @@ embedding layer쪽 parameter를 줄이는 것만으로는 부족했던 모양인
   
 왜 FFN의 parameter를 공유하는 것이 성능 하락을 가져왔는지는 논문에서도 제대로 설명이 되어있지 않지만, **아무튼 layer간 parameter를 sharing하는 것이 큰 성능 하락을 가져오지 않는다는 점에 큰 의의가 있다.**  
   
-![cross-layer-parameter-sharing-performance](/img/posts/20-9.png){: width="90%" height="90%"}{: .center}   
+![cross-layer-parameter-sharing-performance](/img/posts/20-9.png){: width="100%" height="100%"}{: .center}   
 위 표에서는 factorized embedding parameterization에서 E(줄어든 embedding vector 차원)에 따라 성능 변화가 어떻게 나타나는지 확인할 수 있고,
 또 **not-shared와 shared-attention 사이의 성능 차이가 크지 않다는 것을 확인할 수 있다.** 
 하지만 앞서 언급했듯이 FFN의 parameter까지 공유하는 all-shared나 shared-FFN은 attention의 parameter만 공유한 경우보다 상대적으로 성능이 떨어지는 것도 확인할 수 있다.  
@@ -269,7 +272,7 @@ embedding layer쪽 parameter를 줄이는 것만으로는 부족했던 모양인
 <br />
 
 #### Summary
-![cross-layer-parameter-sharing-performance](/img/posts/20-10.png){: width="90%" height="90%"}{: .center}   
+![cross-layer-parameter-sharing-performance](/img/posts/20-10.png){: width="100%" height="100%"}{: .center}   
 지금까지 살펴본 ALBERT 모델은 세 가지 기법을 적용하면서 parameter는 대폭 줄이고, 모델이 보다 유의미한 학습을 할 수 있도록 task도 일부 조정하였다.
 그 결과 위와 같이 ALBERT가 기존 BERT 모델에 비해 비슷하거나 혹은 더 좋은 성능을 보인다.
 parameter 수를 대폭 감소시켰는데도 성능이 떨어지지 않았다는 점이 ALBERT 모델의 놀라운 점이라고 할 수 있다.
@@ -289,7 +292,7 @@ Generator, Discriminator로 이루어져있으며 이들은 서로 적대적 학
   
 그리고 마지막으로 충분히 학습이 되었으면, **discriminator를 pre-training model로 활용**한다.  
   
-![electra-performance](/img/posts/20-12.png){: width="90%" height="90%"}{: .center}   
+![electra-performance](/img/posts/20-12.png){: width="100%" height="100%"}{: .center}   
 replaced token detection(대체된 단어 예측, ELECTRA)와 masked language model(MLM, 마스킹된 단어 생성, BERT)은 모두 학습을 많이함에따라 위와 같이 성능이 계속 올라간다.
 다만 같은 학습 step에서 ELECTRA가 더 우수한 성능을 보인다. 물론 generator가 MLM의 역할을 하긴하지만 우리는 discriminator를 pre-training model로 활용하므로
 ELECTRA는 replaced token detection 기반 학습을 한다고 말할 수 있다.
@@ -313,8 +316,8 @@ ELECTRA는 replaced token detection 기반 학습을 한다고 말할 수 있다
 <br />
 
 #### TinyBert (Findings of EMNLP 2020)
-여기서는 softmax의 결과뿐만 아니라 **중간결과물인 self-attention의 encoding matrix $W\_k$, $W\_q$, $W\_v$, 그리고 그 결과로 나오는 hidden state vector까지도** 
-student network이 담도록 학습이 진행된다.  
+여기서는 softmax의 결과뿐만 아니라 **중간결과물인 self-attention의 encoding matrix $W\_k$, $W\_q$, $W\_v$, 그리고 가중 평균의 결과로 나오는 hidden state vector까지도** 
+student network의 그것과 일치하도록 학습이 진행된다.  
   
 그런데 student model의 hidden state vector는 teacher model의 hidden state vector보다 차원이 작을 수 있다.
 따라서 teacher쪽에 이 벡터의 차원수를 축소해주는 linear layer를 추가적으로 둬서 student model의 loss를 구할 때 문제가 없도록 설계해준다.   
@@ -341,4 +344,5 @@ ERNIE(Enhanced Language Representation with Informative Entities), KagNet(Knowle
 ## Reference  
 [퓨샷 러닝(few-shot learning)](https://www.kakaobrain.com/blog/106)  
 [ALBERT 논문 Review](https://y-rok.github.io/nlp/2019/10/23/albert.html)  
-[ALBERT 논문 Review 2](https://reniew.github.io/49/)  
+[ALBERT 논문 Review 2](https://reniew.github.io/49/)    
+[Weight Initialization in Neural Networks](https://towardsdatascience.com/weight-initialization-in-neural-networks-a-journey-from-the-basics-to-kaiming-954fb9b47c79)  
