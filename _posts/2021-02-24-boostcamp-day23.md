@@ -70,7 +70,7 @@ $i$와 $j$가 연결된 배치 모형이 나올 확률은 어떤 간선 한쪽 �
 <center>
 
 $$
-\langle t\_{ij} \rangle = 2M p_i p_j
+\langle t_{ij} \rangle = 2M p_i p_j
 $$
 
 </center>
