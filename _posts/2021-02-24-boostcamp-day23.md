@@ -2,7 +2,7 @@
 layout: post
 title: "Day23. 군집 탐색, 추천 시스템"
 subtitle: "군집성과 군집 탐색 알고리즘, 협업 필터링"
-date: 2021-02-23 14:55:12+0900
+date: 2021-02-24 22:50:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
