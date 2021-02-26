@@ -241,27 +241,42 @@ $$
 </center>  
 
   
-따라서 많은 경우 근사식을 사용하는데 모든 정점에 대해서 정규화하는 대신 몇 개의 정점을 뽑아서(이렇게 뽑힌 정점을 negative sample이라고 부른다) 이들을 비교하는 형태이다. 
-mini-batch를 통해 학습하는 SGD와 비슷한 맥락에서 동작한다고도 볼 수 있다.  
+따라서 많은 경우 비슷한 역할을 하는 **근사식을 사용**한다. 
+모든 정점에 대하여 확률을 정규화하는 대신, 몇 개의 정점을 뽑아서(이렇게 뽑힌 정점을 negative sample이라고 부른다) 이들만을 이용하여 학습할 수 있다.   
   
 node2vec 기법은 사실 word2vec과 매우 유사하다. word2vec의 negative sampling에 대해서는 <span class="link_button">[이 글](https://wikidocs.net/69141)</span>을 참조하도록 하자. 
-word2vec처럼, node2vec도 negative sampling을 사용함으로써 매 학습단계마다 **한번에 모든 정점에 대한 임베딩을 학습시키지 않고 binary classification(주변 정점인지, 아닌지)으로 중심 정점과 주변 정점의 임베딩 벡터만을 학습시킨다.**  
+word2vec처럼, node2vec도 negative sample을 사용함으로써 매 학습단계마다 **한번에 모든 정점의 임베딩을 학습시키지 않고 binary classification(주변 정점인지, 아닌지)으로 중심 정점과 주변 점, 그리고 negative sample의 임베딩 벡터만을 학습시킨다.**   
+   
+손실함수도 기존처럼 전체 정점의 임베딩 벡터의 학습(혹은 전체 정점에 대한 예측)을 위한 형태가 아니라 input으로 들어오는 두 정점의 임베딩 벡터 및 negative sample을 학습시키기 위한 형태로 바뀌게 된다.  
   
-결국 손실함수도 기존처럼 전체 정점의 임베딩 벡터의 학습을 위한 형태가 아니라 input으로 들어오는 두 정점의 임베딩 벡터를 학습시키기 위한 형태로 바뀌게 된다.  
-  
-여기서는 $k$개의 negative sample을 뽑아 대상 정점($u$)과 $N\_R(u)$안의 주변 정점($v$) 사이의 시그모이드 값이 최대가 되도록 학습시키게 된다.    
+여기서는 $k$개의 negative sample, 즉 $k$개의 $u$와 가깝지 않은 sample을 뽑아 대상 정점 $u$와 $v$ 사이의 시그모이드 값(확률 값)이 최대가 되도록 학습시키게 된다. 
+반대로 대상 정점이 아닌 negative sample 안의 정점들은 **$u$와 가깝지 않도록** 학습된다.      
   
 <center>
 
 $$
 \log\left(\frac{\exp (\mathrm{z}_u ^\intercal \, \mathrm{z}_v)}{\sum _{n \in V} \exp (\mathrm{z}_u ^\intercal \, \mathrm{z}_n)}\right)
-= \log(\sigma(\mathrm{z}_u ^\intercal \, \mathrm{z}_v)) - \sum _{i=1} ^k \log(\sigma(\mathrm{z}_u ^\intercal \, \mathrm{z}_{n_i})), \;\; n_i \sim P_V
+\approx \log(\sigma(\mathrm{z}_u ^\intercal \, \mathrm{z}_v)) - \sum _{i=1} ^k \log(\sigma(\mathrm{z}_u ^\intercal \, \mathrm{z}_{n_i})), \;\; n_i \sim P_V
 $$
 
 </center>
+  
+여기서 이 확률값을 최대화시키는 것은 곧 **$u$와 가장 유사도가 높은 정점으로 $v$를 택하겠다는 것**과 같다. 
+$u$의 가까이에는 $v$ 말고도 $N\_R (u)$ 안의 많은 정점들이 존재한다. 하지만 하고자하는 것은 그 중에서도 $v$와의 유사도가 가장 높도록 만들겠다는 것이다.  
+  
+만약 단순히 $u$와 $v$의 유사도만을 높이겠다고 하면 뒤에 붙는 마이너스 로그 항은 필요가 없을 것이다.
+하지만 $N\_R (u)$ 의 정점들 중 negative sample은 거르고 동시에 $v$와의 유사도를 가장 높게 잡겠다라고 했기 때문에 뒷 항이 붙어야 한다. 
+즉, 뒤에 붙는 부분이 **negative sample과의 유사도를 작게 만들어주는 항이다.**   
+  
+negative sample의 의미를 다시 한 번 생각해보면, 결국 **$u$와 비슷하지 않은 sample의 집합**이다. 
+우리는 negative sample과의 유사도를 작게 만들고 negative sample이 아닌, window size 내에 있는 정점 $v$와의 유사도를 높게 만들기 위해 식을 위와 같이 설계하였다.  
+  
 
+식이 정확하게 저렇게 근사되는 이유에 대해서는 **경험적으로 비슷한 결과를 낼 수 있다**라는 것이 밝혀졌기 때문인데, 나도 잘은 모르겠지만 아무튼 식의 형태만 봐도 학습이 잘 될 것 같이 생겼다.  
 
- 
+결론적으로 위와 같은 식을 사용하여 node2vec의 시간복잡도가 $O(n^2)$에서 $O(nk)$로 바뀌었다. 
+$k$는 아무리 커봐야 random walk의 최대 걸음 수를 넘지 못하기 때문에 시간복잡도를 일차다항시간에 가깝게 줄였다고 볼 수 있다.  
+  
 <br />
 
 #### 변환식 정점 표현 학습과 귀납식 정점 표현 학습
