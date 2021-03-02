@@ -163,7 +163,7 @@ AGG 함수로써 평균, 풀링, LSTM 등이 사용될 수 있다.
 
 $$
 \begin{aligned}
-&(\text{MEAN}) \text{AGG} = \sum _{u \in N(v)} \frac{\mathrm{h}_u ^{(k - 1)}}{\vert N(v)} \\
+&(\text{MEAN}) \text{AGG} = \sum _{u \in N(v)} \frac{\mathrm{h}_u ^{(k - 1)}}{\vert N(v) \vert} \\
 &(\text{POOL}) \text{AGG} = \gamma (\{ \mathrm{Q} \mathrm{h}_u ^{(k-1)}, \; \forall u \in N(v) \}) \\
 &(\text{LSTM}) \text{AGG} = \text{LSTM} ([ \mathrm{h}_u ^{(k-1)}, \; \forall u \in \pi(N(v)) ]) 
 \end{aligned}
