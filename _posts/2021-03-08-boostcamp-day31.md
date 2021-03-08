@@ -200,5 +200,5 @@ semi-supervised learning에서는 labeled data와 unlabeled data를 모두 활�
   
 ## Reference   
 [ANN and CNN: Analyzing Differences and Similarities](https://viso.ai/deep-learning/ann-and-cnn-analyzing-differences-and-similarities/)     
-[Pseudo Labeling](https://www.stand-firm-peter.me/2018/08/22/pseudo-label/)  
-[Why should we use Temperature in softmax? \[closed\]](https://stackoverflow.com/questions/58764619/why-should-we-use-temperature-in-softmax)  
+[Pseudo Labeling](https://www.stand-firm-peter.me/2018/08/22/pseudo-label/)   
+[Why should we use Temperature in softmax?](https://stackoverflow.com/questions/58764619/why-should-we-use-temperature-in-softmax)  
