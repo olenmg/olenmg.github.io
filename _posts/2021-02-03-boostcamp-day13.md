@@ -46,7 +46,7 @@ output의 채널은 커널의 갯수만큼 나오게 된다.
 #### 고전적인 CNN
 ![example_cnn](/img/posts/13-2.png){: width="90%" height="90%"}{: .center}    
 위 그림은 가장 고전적, 기본적 CNN 구조이다. convolution/pooling layer들에서는 feature extraction(특징 추출), affine layer들에서는 결정(decision making)을 한다. 
-convolution, pooling을 여러번 반복하고 뒤에서는 우리가 전에 다루었던 affine layer(MLP)가 나오게 된다. 
+convolution, pooling을 여러번 반복하고 뒤에서는 우리가 전에 다루었던 affine layer가 나오게 된다. 
 parameter수가 많을수록 학습이 어렵고 generalization performance가 떨어지기 때문에 <strong>parameter수를 줄일 방법에 대해 연구가 필요하다.</strong>   
   
 최우선적으로, 많은 parameter가 affine layer 부분에 존재하기 때문에 affine layer의 수를 최대한 줄이는 것이 좋다.  
@@ -74,7 +74,7 @@ $k$가 커널의 사이즈이고 홀수일 때, input과 output의 크기가 같
 위 그림은 AlexNet에서 각 레이어별로 parameter수를 구해놓은 예시이다.    
 AlexNet이 나올 당시 GPU의 성능이 부족했기 때문에 분기를 2개로 나눠놓았지만, 결국 계산은 같다.
 
-간단하게 몇개만 구해보자. affine layer는 fully connected layer로, dense layer 즉 우리가 전에 썼던 고전적인 MLP 구조의 신경망을 뜻한다. 
+간단하게 몇개만 구해보자. affine layer는 fully connected layer(dense layer)를 뜻한다.  
 - 1th convolution
     + 커널의 사이즈가 11 x 11이고 채널은 3이다. <strong>(보통 커널의 채널수는 input의 채널과 같아야하므로 생략하는 경우가 많다.)</strong>
     + output의 채널이 48이므로 커널의 갯수도 48이어야하며, 분기가 2개로 갈라지므로 이를 2번 카운팅해야한다.
@@ -211,7 +211,7 @@ semantic segmentation(dense classification)은 위와 같이 이미지를 픽셀
     + 본래 고전 CNN 구조는 맨 뒤에서 affine layer가 들어가게 되면서 후반부에는 output이 flatten되어 각 output의 위치정보가 소실되는 단점이 있었다. 
     ![FCN](/img/posts/13-15.png){: width="80%" height="80%"}{: .center}   
     + FCN에서는 affine layer 대신 <strong>1 x 1 kernel을 가진 convolutional layer를 넣어줌으로써 결과적으로 output의 위치정보를 유지할 수 있다.</strong> 
-    ![fcn_example](/img/posts/13-16.png){: width="90%" height="00%"}{: .center}
+    ![fcn_example](/img/posts/13-16.png){: width="90%" height="90%"}{: .center}
     + 그리고 위치정보를 남길뿐만아니라, input의 size도 자유로워졌다. 본래 affine layer는 input 크기가 딱딱 맞춰들어와야했는데,
       convolution 연산에서는 거듭 말하지만 커널의 사이즈가 input size와 독립적이기 때문에 어느 입력이든 받아들일 수 있다. 물론, input이 커지면 output도 커지고, input이 작아지면 output도 작아진다. (여기서 말하는 사이즈는 모두 spatial dimension 기준이다)
     + 다만 convolution을 거치면 보통 output의 spatial dimension은 줄어들게된다. 따라서 원본이미지와 크기가 같도록 늘려줄 필요성이 있다. 
