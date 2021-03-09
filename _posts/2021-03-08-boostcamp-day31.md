@@ -188,7 +188,7 @@ semi-supervised learning에서는 labeled data와 unlabeled data를 모두 활�
 
 **그리고 다시 학습된 student를 teacher로 두고 새로운 student 모델을 학습시킨다.** 
 즉, 재귀적으로 student-teacher network를 구성하여 계속하여 새로운 student를 학습시키는 것이다. 
-이러한 재귀적인 과정을 2~3번 반복하여 최종적인 student 모델을 활용하게된다.  
+이러한 재귀적인 과정을 계속 반복하여 최종적인 student 모델을 활용하게된다.  
   
 다만, 이전 distilation과 다른 점은 **여기서는 student model의 size가 점점 커진다는 것이다.**
 여기서는 경량화가 목적이 아니기 때문에 이는 정확도를 높이기 위한 하나의 수단으로 이해될 수 있다.  
