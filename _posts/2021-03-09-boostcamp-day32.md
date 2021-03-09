@@ -2,7 +2,7 @@
 layout: post
 title: "Day32. Semantic segmentation"
 subtitle: "Image classification, semantic segmentation"
-date: 2021-03-09 11:40:12+0900
+date: 2021-03-09 18:21:12+0900
 background: '/img/posts/bg-posts.png'
 use_math: true
 ---
