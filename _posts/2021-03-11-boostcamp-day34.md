@@ -25,6 +25,11 @@ use_math: true
     - [CornerNet](#cornernet)
     - [CenterNet](#centernet)
 - [Conditional Generative Model](#conditional-generative-model)
+- [Image translation GANs](#image-translation-gans)
+    - [Pix2Pix](#pix2pix)
+    - [CycleGAN](#cyclegan)
+    - [Perceptual Loss](#perceptual-loss)
+- [Various GAN applications](#various-gan-applications)
 - [Reference](#reference)
     
 <br />
@@ -151,7 +156,7 @@ $$
   
 $\sigma$는 hyperparameter로 heatmap label을 얼마나 퍼뜨려줄지 직접 정해야한다. 
 실제 구현에서 x좌표와 y좌표는 그 dimension이 다르지만 <code>numpy</code>에서 broadcasting을 적용하므로 최종적으로 2차원의 heatmap을 얻을 수 있다. 
-그렇다면 **Gaussian heatmap에서 landmark location으로의 변환은 어떻게 할 수 있을까?** 지금 당장 내 생각에는 Gaussian heatmap에서 gradient가 0인 극점의 좌표를 찾으면 
+그렇다면 **Gaussian heatmap에서 landmark location으로의 변환은 어떻게 할 수 있을까?** 지금 당장 내 생각에는 Gaussian heatmap에서 확률값이 가장 높은 부분을 찾으면 
 그곳이 landmark의 실제 위치일 것 같은데 일단 이 부분은 숙제로 남겨두도록 한다.  
 
 <br />
@@ -238,11 +243,240 @@ CornetNet에서는 정확도는 떨어지지만 head를 4개만 두어 속도를
 
 <br />
 
-## Conditional Generative Model   
-**작성중**  
+## Conditional Generative Model    
+**:exclamation: 지금부터 다룰 내용은 <span class="link_button">[이전 포스트](/2021/02/05/boostcamp-day15.html)</span>에서 이미 관련 내용을 다루고 있으니 이 내용을 참고하도록 하자. 여기서는 부족한 부분을 위주로 다룰 예정이다.**  
+  
+지금부터 볼 모델은 구체적으로는 GAN이 아닌 **Conditional GAN(CGAN)**이다. 
+GAN과 거의 다를 바가 없긴 한데, 여기서는 latent vector를 통해 random image를 생성하는게 아니라 **원하는 것을 생성할 수 있다는** 차이가 있다.  
+  
+![conditional](/img/posts/34-17.png){: width="60%" height="60%"}{: .center}   
+설명에 앞서, 우리가 하고자 하는 바를 먼저 생각해보자. 만약 우리가 위와 같이 가방의 sketch $S$로 실제 물체의 이미지 $X$를 만들고자 한다면, 다른 말로 우리의 목표는 **확률분포 $P(X \vert S)$**를 모델링하는 것이 된다.  
+  
+![conditional_GAN](/img/posts/34-18.png){: width="70%" height="70%"}{: .center}   
+CGAN은 이러한 task를 위해 위와 같이 일반 GAN의 input에 **conditional 정보를 넣어준다.** 이 때, latent vector $\mathrm{z}$는 이제 필수가 아니다. 
+여기까지 보면 물체의 형상은 C에 의존적으로 생성되고 $\mathrm{z}$는 noise(물체의 style 요소 등)를 모델링하는 데에 영향을 줄 것임을 예상해볼 수 있다.  
+  
+loss도 아래와 같이 $y$를 조건부로 넣어주는 부분만 바뀐다.  
+  
+**(Vanilla GAN)**   
+
+<center>
+
+$$
+\min_ G \max_ D V(D, G) = \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log D(x) \right] + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z}))) \right]
+$$
+
+</center>
+
+**(Conditional GAN)**  
+
+<center>
+
+$$
+\min_ G \max_ D V(D, G) = \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \log D(x \vert y) \right] + \mathbb{E} _{\mathrm{z} \sim p_{\mathrm{z}}(z)} \left[ \log(1 - D(G(\mathrm{z} \vert y))) \right]
+$$
+
+</center>
+  
+CGAN은 여러 **image translation(Image-to-Image translation) task**에 활용될 수 있다.
+예를 들어 주어진 사진의 색채 등 스타일을 변경한다든지(style transfer), 이미지의 해상도를 높인다든지(super resolution), 흑백 이미지를 컬러 이미지로 만든다든지(colorization) 등의 task가 있다.  
+  
+![conditional_generative](/img/posts/34-19.png){: width="70%" height="70%"}{: .center}   
+그런데 이러한 task에 CNN 등의 일반적인 regression model을 사용할 수도 있지 않을까 생각해볼 수 있다. 위 그림의 좌측처럼 말이다. 
+위 케이스는 super resolution(SR) task를 예시로 든건데 두 방법의 성능 차이는 어디서 나오게 되는걸까?  
+  
+![conditional_generative_graph](/img/posts/34-20.png){: width="60%" height="60%"}{: .center}   
+MSE loss를 base로 한 CNN 등의 모델을 generative model로 활용한다면 위와 같이 loss를 최소화하기 위해 어정쩡한 이미지를 생성하게 된다.
+이것은 true image의 분포가 위와 같이 원 모양으로 퍼져있을 때 극단적으로 두드러질 수 있다. loss를 최소화하기 위해 모든 true image에 대한 loss의 합을 최소화하기 위해
+오히려 true와 거리가 먼 이미지를 생성하게 되는 것이다.  
+  
+반면 GAN loss(**adversarial loss**)를 활용하면 생성된 이미지가 원래 이미지와 가까운지가 아니라, 가짜 이미지인지 진짜 이미지인지만 판별하므로 이러한 현상이 발생하지 않는다. 
+앞서 본 naive model도 상황에 따라 어쩌면 원하는 형태와 비슷한 이미지를 생성하는데에 문제가 없을 수도 있겠지만 그렇다고 해도 여전히 loss를 최소화하기 위한 시도로부터 blurry image가 생성되는, 즉 선명한 이미지를 생성해낼 수 없다는 한계가 존재한다.   
+  
+<br /> 
+
+## Image translation GANs  
+**image translation**이란 **input으로 들어오는 이미지의 도메인(i.e., style)을 변경하는 task**이다. 
+좀더 일반적으로 들어오는 이미지의 해상도는 그대로 유지하되, 일부 스타일만을 변경하는 것을 말한다.  
+  
+그 중 하나로 **Pix2Pix** 방법론이 존재한다. 여기서는 GAN의 loss를 그대로 이용하게 되는데, 차이점이라면 추가적으로 **L1 loss**를 함께 활용한다. 
+
+<br />
+
+#### Pix2Pix  
+GAN은 원래 이미지를 생성하는 모델인데, 여기서 원하는 것은 이미지를 밑바닥부터 생성하는 generative가 아니라 transfer이므로 단순히 GAN loss만 활용하는 것이 아니라고 이해할 수 있다. 
+따라서 이러한 사실을 적용한 Pix2Pix의 loss function은 아래와 같다.  
+  
+<center>
+
+$$
+G ^{*} = \text{arg} \min_ G \max_ D \mathcal{L_c} _{\text{GAN}} (G, D) + \lambda \mathcal{L} _{\text{L1}} (G) 
+$$
+
+</center>
+
+이를 풀어쓰면 아래와 같다.
+
+<center>
+
+$$
+\mathcal{L_c} _{\text{GAN}} (G, D) = \mathbb{E} _{x, \, y} \left[ \log D(x, y) \right] + \mathbb{E} _{x, \, z} \left[ \log(1 - D(x, \, G(x, \, z))) \right]
+$$
+$$
+\mathcal{L} _{\text{L1}} (G) = \mathbb{E} _{x, \, y, \, z} \left[ \Vert y - G(x, \, z) \Vert _1 \right]
+$$
+
+</center>
+
+$z$는 random noise이고 $x$는 input image, $y$는 target image이다. 
+여기서도 conditional loss가 활용되었는데 논문에서는 일반 GAN보다 CGAN에서의 성능이 더 좋았기 때문에 이를 활용하였다고 명시되어있다.   
+  
+CGAN loss는 realistic한 image의 출력을 유도하기 위해 활용되고, L1 norm은 생성하고자 하는 이미지에 대한 가이드로 활용된다. 
+만약 GAN loss만 활용한다면, 진짜 이미지만 생성하려고 하고 우리가 의도하는 이미지를 생성하지는 못할 것이다. $x$와 $y$의 실질적인 비교가 없기 때문이다. 
+CGAN의 첫번째 항은 $x$와 $y$의 비교가 아니고 그저 진짜 이미지라는 틀 내에서 확률 분포가 비슷한지만 판별해낸다.    
+   
+반대로 L1 norm만 활용한다면 우리가 원하는 이미지의 형태로 생성을 하겠지만 fake image의 티가 팍팍 나게 될 것이다.   
+  
+여기서는 둘 모두의 장점을 취한 loss를 활용하여 최종적으로 아래와 같이 상당히 잘 translation된 이미지를 생성해낼 수 있었다.  
+  
+![pix2pix](/img/posts/34-21.png){: width="90%" height="90%"}{: .center}     
+   
+<br />
+  
+#### CycleGAN
+Pix2Pix는 **pairwise data**가 필요하다는 한계가 존재한다. Pix2Pix는 ground truth가 직접적으로 관여하기 때문에 supervised learning이다. 
+supervised가 아닌 상태로 어떻게 학습을 하느냐는 의문이 들 수도 있지만, **CycleGAN**에서는 이를 해결한다.  
+   
+여기서 필요한 데이터셋은 그냥 서로 다른 domain을 가지는 두 image set $\mathrm{X}$와 $\mathrm{Y}$ 뿐이다. 둘 간의 pairing 과정은 필요하지 않다.   
+  
+CycleGAN이 왜 Cycle 구조를 가져야하는지, cycle구조가 정확히 어떻게 생겼는지는 <span class="link_button">[이전 포스트](/2021/02/05/boostcamp-day15.html)</span> 하단에서 다루고 있으니 이를 참조하도록 하자.  
+  
+여기서는 이전 포스트에서 다루지 않은 loss function에 대해 생각해본다. 함수 $G$와 $F$가 $G : X \rightarrow Y$, $F : Y \rightarrow X$일 때 loss function은 아래와 같다.  
+  
+<center>
+
+$$
+\mathcal{L}_{\text{cycleGAN}} = \mathcal{L}_{\text{GAN}} (X \rightarrow Y) + \mathcal{L}_{\text{GAN}} (Y \rightarrow X) + \lambda \mathcal{L} _{\text{cycle}} (G, F)
+$$
+
+</center>
+  
+이를 좀 더 풀어쓰면 아래와 같다.  
+  
+<center>
+
+$$
+\begin{aligned}
+\mathcal{L}(G, F, D_X, D_Y) &= \mathcal{L}_{\text{GAN}} (G, D_Y, X, Y) \\
+&+ \mathcal{L}_{\text{GAN}} (F, D_X, Y, X) \\
+&+ \lambda \mathcal{L} _{\text{cycle}} (G, F) 
+\end{aligned}
+$$
+
+</center>
+
+여기서 $\mathcal{L}\_{\text{GAN}}$은 각 방향에 해당하는 Vanilla GAN의 loss를 나타낸다. 아래는 예시로 $X$에서 $Y$방향($G : X \rightarrow Y$)으로의 loss 식이다. 
+
+<center>
+
+$$
+\begin{aligned}
+\mathcal{L}_{\text{GAN}} (G, D_Y, X, Y) &= \mathbb{E} _{y \sim p_{\text{data}}(y)} \left[ \log D_Y(y) \right] \\
+&+ \mathbb{E} _{\mathrm{x} \sim p_{\text{data}}(x)} \left[ \log(1 - D_Y(G(x))) \right]
+\end{aligned}
+$$
+
+</center>
+
+X에서 Y로, Y에서 X로, 양방향으로의 translation이 잘 되어야하므로 loss는 위와 같이 구성된다. 
+그런데 앞 포스트에서도 언급했듯이 **translate된 이미지가 다시 원래대로 돌아올 수 있는 loss까지 학습해야한다.** 
+따라서 최종 loss는 우리가 일반적으로 생각하는 GAN loss에 더불어 뒤에 **Cycle-consistency loss 항**까지 추가된다. 
+그림으로 보면 아래와 같다.     
+    
+![cycleGAN](/img/posts/15-10.png){: width="90%" height="90%"}{: .center}     
+따라서 $\mathcal{L} \_{\text{cycle}} (G, F)$은 아래와 같이 두 개의 generator를 거치고 나온 output이 원래 input과 같은지에 대한 정보를 반영해준다.    
+  
+<center>
+
+$$
+\begin{aligned}
+\mathcal{L} _{\text{cycle}} (G, F) &= \mathbb{E} _{x \sim p_{\text{data}}(x)} \left[ \Vert F(G(x)) - x \Vert _1 \right] \\
+&+ \mathbb{E} _{y \sim p_{\text{data}}(y)} \left[ \Vert G(F(y)) - y \Vert _1 \right]
+\end{aligned}
+$$
+
+</center>
+  
+여담으로 이번 주차에서 워낙 모델을 많이 다루다보니 다양한 형태의 loss들을 보고있는데, loss function이 참 복잡하면서도 한편으로는 모델이 무엇을 배우려고 하는지를 한 눈에 볼 수 있다보니 뭔가 재밌는 것 같기도하다. 결국 모델의 설계 의도와 핵심은 모두 loss function에 담겨져있다.  
+  
+<br />
+  
+#### Perceptual Loss  
+GAN loss는 계속해서 $\text{argmax}$와 $\text{argmin}$을 왔다갔다 하는 등 학습 자체가 좀 복잡하고 설계(코딩)하는 데에 어려운 점들이 있다. 
+물론 pre-train된 모델이 필요하지 않아 보다 다양한 어플리케이션에 적용할 수 있다는 장점이 있긴 하다.  
+  
+**Perceptual loss**는 pre-trained model이 필요하지만 GAN loss와 비슷한 역할을 수행하면서도 구현이 간단하다는 장점이 있는 loss 함수이다.   
+  
+perceptual loss의 아이디어는 이전에 살펴본 CNN visualization과도 연관이 있는데, 어떤 CNN 모델이 있으면 여러 level에서 나오는 activation map의 각 channel들이 담당하는 **perception의 종류가 다르다는 것**에서 출발한다. 
+우리는 이전에 모델의 각 채널이 어떤 것을 담당하는지 살펴보고 이를 응용해보는 task도 있다는 것을 배웠다.  
+  
+![perceptual_loss](/img/posts/34-22.png){: width="90%" height="90%"}{: .center}     
+여기서는 먼저 image transform을 수행하는 앞단 모델에 input $x$를 넣어서 얻은 transform된 결과 $\hat{y}$를 **pre-train된 모델에 넣어 각 level에서의 feature channel들을 추출한다.** 
+그리고 style target과 content target도 같은 pre-trained model에 통과시켜 각 level에서 feature channel들을 얻는다.
+우리의 목표는 **$\hat{y}$의 feature map들이 style/content와 비슷해지도록 학습시키는 것이다.**  
+  
+이 때 당연히 미리 학습된 뒷단의 모델은 학습시키지 않고 transform performance를 향상시키기 위해 transform net만을 학습시킨다. 
+여기까지 보면 방식이 그리 어렵지 않다. 이제 $\hat{y}$를 style target과 content target에 구체적으로 어떻게 근사시킬것인지를 살펴보자.   
+  
+그 전에, content target과 style target은 또 어떻게 얻을 것인지 의문이 생길 수 있는데, 그것들도 따로 어떻게 추출하는 방법이 논문에 제시되어있다.
+이 부분을 자세히 읽어보진 않았고 지금 당장은 깊게 팔 생각이 없기 때문에(...) 이 부분은 일단 넘기고, 그걸 어떻게 근사시킬지만 알아보도록 하자.   
+  
+![content_target](/img/posts/34-23.png){: width="90%" height="90%"}{: .center}     
+먼저 **content target**은 그냥 L2 loss를 계산한다. 매우 간단하지만 또 강력한 방법이라 이를 채택한 것 같다. 
+
+![content_target](/img/posts/34-24.png){: width="90%" height="90%"}{: .center}   
+**style target**에서는 바로 L2 loss를 적용할 수 없다. 당장 생각해봐도 우리는 스타일을 바꿀건데 단적인 예로 이미지에 노란색 픽셀 부분이 있다면 바뀐 이미지에서도 그 부분이 꼭 노란색일 필요가 없다. (오히려 그러면 안되는 경우도 있다.)  
+  
+따라서 여기서는 추출된 feature 상의 **채널 간 연관성**을 따진다. 
+이를 위해 pre-trained model에서 추출한 feature map을 그대로 활용하지 않고, 먼저 이들의 **gram matrix**를 각각 구하여 그 둘간의 L2 loss를 구한다.  
+  
+gram matrix란 C x H x W 의 tensor를 C x (H x W)의 2차원 행렬로 펼치고 이 펼친 행렬과 펼친 행렬을 transpose한 행렬을 곱해서 구할 수 있다.
+결국 각 채널별 정보를 내적한다는 것인데, 딱봐도 각 채널간 유사도를 결과값 행렬이 표현해낼 수 있다는 것을 예상해볼 수 있다. (C x C 크기의 행렬이 나올 것이다) 
+  
+공분산 행렬(covariance matrix)을 구하는 과정과 코사인 유사도를 구하는 과정을 함께 생각해보면 쉽게 이해할 수 있다.  
+  
+아무튼 그렇게 gram matrix를 transformed image, style target에서 각각 구해 이 둘 간의 L2 loss를 찾는다.
+우리는 최종적으로 채널간 연관성이 유사해지는 학습을 할 수 있게 된다.    
+  
+
+<br />
+
+## Various GAN applications
+번외로 GAN이 적용될 수 있는 분야에 대해 잠깐 살펴보도록 한다.  
+  
+흔히들 아는 **Deepfake**는 실존하지 않는 사람의 얼굴을 생성하거나 영상에 등장하는 사람의 얼굴이나 목소리를 의도한 다른 형태로 변형하는 기술을 말한다. 
+물론 이부분은 윤리적 문제가 많다. 범죄 예방을 위해 다각도의 시도가 계속되고 있으며 반대로 **Deepfake를 탐색하는 discriminator를 개발하는 기술도 연구되고 있다.**  
+
+하지만 Deepfake가 꼭 도덕적 악영향만 있는 것은 아니다. 어떤 영상에서 deepfake를 이용해 해당 영상에 등장하는 사람의 개인정보(얼굴/목소리 등)를 보호할 수도 있다. 
+컴퓨터의 인식력은 매우 민감하기 때문에 원래의 모습에서 조금만 변경하더라도 같은 사람으로 인식하지 못하는 경우가 많다고 한다.  
+  
+![face_de_identification](/img/posts/34-25.png){: width="90%" height="90%"}{: .center}     
+**Face de-identification**이라는 기술은 일종의 이미지 crypto 기법인데, passcode를 이용해 다른 얼굴을 생성하고 다시 이 passcode를 이용해 원래 얼굴을 복원(decrypt)해낸다.
+어떤 원리인지는 몰라도 개인적으로 이 기술은 꽤나 재미있게 느껴졌다.  
+  
+![video_translation](/img/posts/34-26.png){: width="90%" height="90%"}{: .center}     
+마지막으로 다른 사람의 외형을 빌려와서 해당 pose로 원본 이미지를 변형하는 **pose transfer** 기법이나, 비디오에서 실시간으로 translation을 하는 video-to-video translation 기법(vid2vid)도 존재한다.   
+  
+물론 CV 분야가 워낙 그 범용성이 넓기 때문에, 여기에 열거하지 않은 다양한 분야가 존재하며 각 분야에서 계속해서 활발한 연구가 진행중이다.  
   
 <br />
 
 ## Reference   
-[Mask R-CNN](https://ganghee-lee.tistory.com/40)  
-[Mask R-CNN(2)](https://cdm98.tistory.com/33)  
+[Mask R-CNN](https://ganghee-lee.tistory.com/40)    
+[Mask R-CNN(2)](https://cdm98.tistory.com/33)    
+[GAN을 이용한 Image to Image Translation: Pix2Pix, CycleGAN, DiscoGAN](https://taeoh-kim.github.io/blog/image2image/)     
+  
+
+[Image-to-Image Translation with Conditional Adversarial Networks, Phillip Isola, Jun-Yan Zhu, Tinghui Zhou and Alexei A. Efros, CVPR 2017](https://arxiv.org/pdf/1611.07004.pdf)    
+    
+[Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks, Jun-Yan Zhu, Taesung Park, Phillip Isol a and Alexei A. Efros, ICCV 2017](https://arxiv.org/pdf/1703.10593.pdf)
