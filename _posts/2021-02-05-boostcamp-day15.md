@@ -629,7 +629,7 @@ $$
     + 여기서 사용된 L2 loss가 cycle consistency loss이다.
         ![cycle-consistency-loss](/img/posts/15-10.png){: width="90%" height="90%"}{: .center} 
         - 서로 다른 GAN 네트워크를 2개 사용하였기 때문에 cycle-cosistency loss를 줄일 수 있다.
-        - GAN이 1개일 때는 우리가 기존에 구하던 loss는 줄어들 수 있지만, cylce-consistency loss의 최소화를 보장하지 못한다.
+        - GAN이 1개일 때는 우리가 기존에 구하던 loss는 줄어들 수 있지만, cycle-consistency loss의 최소화를 보장하지 못한다.
         - cycle consistency loss는 중요한 concept이니 잘 알아두도록 하자.
 - Star-GAN
     + 이미지를 단순히 생성하거나, 이미지의 도메인을 바꾸는게 아니라 이미지 자체를 컨트롤할 수 있는 모델이다.
